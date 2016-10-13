@@ -1,4 +1,4 @@
-package demo;
+package com.zyhao.openec;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 @EnableHystrix
 public class CloudApplication {
     public static void main(String[] args) {
-        SpringApplication.run(AccountApplication.class, args);
+        SpringApplication.run(CloudApplication.class, args);
     }
 
     @LoadBalanced
