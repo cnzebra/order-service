@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: YouName-service
+server:
+  port: 0
+---
+spring:
+  profiles: docker
+  cloud:
+    config:
+      uri: http://cfg.openec.zyhao.com:8888
+---
+spring:
+  profiles: default
+  cloud:
+    config:
+      uri: http://cfg.openec.zyhao.com:8888
+spring.profiles.active: development
+---
+spring:
+  profiles: cloud
+  cloud:
+    config:
+      uri: ${vcap.services.config-service.credentials.uri:http://cfg.openec.zyhao.com:8888}
