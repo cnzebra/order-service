@@ -5,7 +5,7 @@ spring:
 spring:
   profiles: development
   datasource:
-    url: jdbc:mysql://db.openec.zyhao.com:3306/accountdb
+    url: jdbc:mysql://db.openec.zyhao.com:3306/orderdb
     username: root
     password: 3g2win.com
     initialize: true
@@ -16,6 +16,7 @@ security:
     client:
       client-id: acme
       access-token-uri: http://openec.zyhao.com:8787
+  ignored: /order/**
 eureka:
   instance:
     prefer-ip-address: true
