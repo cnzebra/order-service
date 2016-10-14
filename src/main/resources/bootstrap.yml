@@ -1,6 +1,6 @@
 spring:
   application:
-    name: YouName-service
+    name: order-service
 server:
   port: 0
 ---
