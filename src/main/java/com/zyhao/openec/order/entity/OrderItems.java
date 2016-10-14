@@ -30,13 +30,13 @@ public class OrderItems implements Serializable {
 	private Long id;
 
 	/** 订单号. */
-	//@NotNull
 	private Long orderId;
 
 	/** 商品数量. */
 	private Integer goodsCount;
 
 	/** 商品SKU. */
+	@NotNull
 	private String sku;
 
 	/** 商品名称. */

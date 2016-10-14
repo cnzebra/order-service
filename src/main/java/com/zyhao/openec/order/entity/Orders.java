@@ -33,7 +33,7 @@ public class Orders implements Serializable {
 
 
 	/** 订单号 . */
-	@NotNull
+//	@NotNull
 	private Long orderCode;
 
 	/** 收货人. */
