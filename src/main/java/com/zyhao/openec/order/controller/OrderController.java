@@ -64,13 +64,26 @@ public class OrderController {
 	}
 	
 	/**
-	 * 修改订单状态
+	 * 查询订单详情
 	 * @param 
 	 * @return
 	 * @throws Exception
 	 */	
 	@Transactional
 	@RequestMapping(path="/{id}",method = RequestMethod.GET)
+	public ResponseEntity<Orders> getOrder(@PathVariable("id") long id) {
+		Orders order=OrderRepository.findOne(id);
+		return new ResponseEntity<Orders>(order,HttpStatus.OK);
+	}	
+	
+	/**
+	 * 修改订单状态
+	 * @param 
+	 * @return
+	 * @throws Exception
+	 */	
+	@Transactional
+	@RequestMapping(path="/{id}",method = RequestMethod.PATCH)
 	public ResponseEntity<Orders> editOrder(@PathVariable("id") long id,@RequestParam String status) {
 		Orders order=OrderRepository.findOne(id);
 		order.setStatus(status);
