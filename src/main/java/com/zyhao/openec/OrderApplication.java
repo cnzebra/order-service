@@ -32,9 +32,9 @@ import org.springframework.stereotype.Component;
 @EnableResourceServer
 @EnableOAuth2Client
 @EnableHystrix
-public class CloudApplication {
+public class OrderApplication {
     public static void main(String[] args) {
-        SpringApplication.run(CloudApplication.class, args);
+        SpringApplication.run(OrderApplication.class, args);
     }
 
     @LoadBalanced

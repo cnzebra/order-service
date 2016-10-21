@@ -14,6 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.CreatedDate;
 /**
  * Model class of 订单表.
  * 
@@ -28,7 +30,7 @@ public class Orders implements Serializable {
 
 	/** id. */
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 
 
@@ -49,9 +51,11 @@ public class Orders implements Serializable {
 	private String status;
 
 	/** 订单提交时间. */
+	@CreatedDate
 	private Date createTime;
 
 	/** 最后变更时间. */
+	@LastModifiedDate
 	private Date modifyTime;
 
 	/** 商户名称. */

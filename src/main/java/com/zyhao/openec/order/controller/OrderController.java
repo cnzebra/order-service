@@ -25,7 +25,7 @@ import com.zyhao.openec.order.repository.OrderRepository;
  *
  */
 @RestController
-@RequestMapping("/order")
+@RequestMapping(path = "/v1")
 public class OrderController {
 	
 	@Autowired
@@ -56,6 +56,7 @@ public class OrderController {
 	 */
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<Page<Orders>> queryOrderList(@RequestParam int page,@RequestParam int size) {
+		
 		Pageable pageable = new PageRequest(page, size);
 //		Pageable pageable = new PageRequest(0,10,new Sort(Sort.Direction.DESC,"id"));
 		Page<Orders> orderList=OrderRepository.findAll(pageable);
@@ -69,7 +70,7 @@ public class OrderController {
 	 * @throws Exception
 	 */	
 	@Transactional
-	@RequestMapping(path="/{id}",method = RequestMethod.PATCH)
+	@RequestMapping(path="/{id}",method = RequestMethod.GET)
 	public ResponseEntity<Orders> editOrder(@PathVariable("id") long id,@RequestParam String status) {
 		Orders order=OrderRepository.findOne(id);
 		order.setStatus(status);
