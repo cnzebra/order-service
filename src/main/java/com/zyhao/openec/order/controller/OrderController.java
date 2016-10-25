@@ -40,12 +40,12 @@ public class OrderController {
 	 * @throws Exception
 	 */
 	@Transactional
-	@RequestMapping(method=RequestMethod.POST,consumes="application/json")
-	public ResponseEntity<Orders> createOrder(@Validated @RequestBody Orders reqOrder) throws Exception {
+	@RequestMapping(path="/new",method=RequestMethod.POST,consumes="application/json")
+	public ResponseEntity<String> createOrder(@Validated @RequestBody Orders reqOrder) throws Exception {
 		Long ramdom = (long)(System.currentTimeMillis());
 		reqOrder.setOrderCode(ramdom);
 		Orders order=OrderRepository.save(reqOrder);
-		return new ResponseEntity<Orders>(order,HttpStatus.OK);
+		return new ResponseEntity<String>(String.valueOf(order.getOrderCode()),HttpStatus.OK);
 	}
 	
 	/**
