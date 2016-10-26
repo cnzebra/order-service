@@ -1,5 +1,7 @@
 package com.zyhao.openec.order.controller;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +46,7 @@ public class OrderController {
 	public ResponseEntity<String> createOrder(@Validated @RequestBody Orders reqOrder) throws Exception {
 		Long ramdom = (long)(System.currentTimeMillis());
 		reqOrder.setOrderCode(ramdom);
+		reqOrder.setCreateTime(new Date());
 		Orders order=OrderRepository.save(reqOrder);
 		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
 	}
