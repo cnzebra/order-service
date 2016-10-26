@@ -45,7 +45,7 @@ public class OrderController {
 		Long ramdom = (long)(System.currentTimeMillis());
 		reqOrder.setOrderCode(ramdom);
 		Orders order=OrderRepository.save(reqOrder);
-		return new ResponseEntity<String>(String.valueOf(order.getOrderCode()),HttpStatus.OK);
+		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
 	}
 	
 	/**
