@@ -1,7 +1,7 @@
 package com.zyhao.openec.order.entity;
 
 import java.io.Serializable;
-import java.util.Date;
+
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -52,11 +52,11 @@ public class Orders implements Serializable {
 
 	/** 订单提交时间. */
 	@CreatedDate
-	private Date createTime;
+	private Long createdAt;
 
 	/** 最后变更时间. */
 	@LastModifiedDate
-	private Date modifyTime;
+	private Long modifyAt;
 
 	/** 商户名称. */
 	private String sellerName;
@@ -237,8 +237,8 @@ public class Orders implements Serializable {
 	 * @param createTime
 	 *            订单提交时间
 	 */
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
+	public void setCreatedAt(Long createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	/**
@@ -246,8 +246,8 @@ public class Orders implements Serializable {
 	 * 
 	 * @return 订单提交时间
 	 */
-	public Date getCreateTime() {
-		return this.createTime;
+	public Long getCreatedAt() {
+		return this.createdAt;
 	}
 
 	/**
@@ -256,8 +256,8 @@ public class Orders implements Serializable {
 	 * @param modifyTime
 	 *            最后变更时间
 	 */
-	public void setModifyTime(Date modifyTime) {
-		this.modifyTime = modifyTime;
+	public void setModifyTime(Long createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	/**
@@ -265,8 +265,8 @@ public class Orders implements Serializable {
 	 * 
 	 * @return 最后变更时间
 	 */
-	public Date getModifyTime() {
-		return this.modifyTime;
+	public Long getModifyTime() {
+		return this.createdAt;
 	}
 
 	/**
@@ -563,12 +563,16 @@ public class Orders implements Serializable {
 	@Override
 	public String toString() {
 		return "Orders [id=" + id + ", orderCode=" + orderCode + ", consignee=" + consignee + ", address=" + address
-				+ ", contactTel=" + contactTel + ", status=" + status + ", createTime=" + createTime + ", modifyTime="
-				+ modifyTime + ", sellerName=" + sellerName + ", sellerId=" + sellerId + ", channelId=" + channelId
+				+ ", contactTel=" + contactTel + ", status=" + status + ", createdAt=" + createdAt + ", modifyAt="
+				+ modifyAt + ", sellerName=" + sellerName + ", sellerId=" + sellerId + ", channelId=" + channelId
 				+ ", memberId=" + memberId + ", goodsCount=" + goodsCount + ", realSellPrice=" + realSellPrice
 				+ ", invoiceHeader=" + invoiceHeader + ", invoiceContent=" + invoiceContent + ", promotion=" + promotion
 				+ ", logistics=" + logistics + ", fareFee=" + fareFee + ", outTradeNo=" + outTradeNo + ", payStatus="
-				+ payStatus + "]";
+				+ payStatus + ", orderItems=" + orderItems + "]";
 	}
+
+
+
+
 
 }

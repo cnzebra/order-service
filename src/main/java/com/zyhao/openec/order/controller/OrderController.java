@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.repository.OrderRepository;
 
+import ch.qos.logback.classic.Logger;
+
 
 /**
  * 
@@ -44,9 +46,10 @@ public class OrderController {
 	@Transactional
 	@RequestMapping(path="/new",method=RequestMethod.POST,consumes="application/json")
 	public ResponseEntity<String> createOrder(@Validated @RequestBody Orders reqOrder) throws Exception {
+		System.out.println("OrderInfo----------->"+reqOrder);
 		Long ramdom = (long)(System.currentTimeMillis());
 		reqOrder.setOrderCode(ramdom);
-		reqOrder.setCreateTime(new Date());
+		reqOrder.setCreatedAt(new Date().getTime());
 		Orders order=OrderRepository.save(reqOrder);
 		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
 	}
