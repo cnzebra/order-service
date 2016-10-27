@@ -1,6 +1,7 @@
 package com.zyhao.openec.order.controller;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.repository.OrderRepository;
+import com.zyhao.openec.service.OrderService;
 
 import ch.qos.logback.classic.Logger;
 
@@ -33,8 +35,9 @@ import ch.qos.logback.classic.Logger;
 public class OrderController {
 	
 	@Autowired
-	private OrderRepository OrderRepository;
-
+	private OrderRepository orderRepository;
+	@Autowired
+	private OrderService orderService;
 
 	
 	/**
@@ -49,8 +52,13 @@ public class OrderController {
 		System.out.println("OrderInfo----------->"+reqOrder);
 		Long ramdom = (long)(System.currentTimeMillis());
 		reqOrder.setOrderCode(ramdom);
+
 		reqOrder.setCreatedAt(new Date().getTime());
-		Orders order=OrderRepository.save(reqOrder);
+		reqOrder.setOutTradeNo(orderService.getTradeOutNo(reqOrder.getChannelId()));
+		Orders order=orderRepository.save(reqOrder);
+		/**调用支付生成支付信息*/
+		orderService.createPayInfo(order);
+
 		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
 	}
 	
@@ -65,7 +73,7 @@ public class OrderController {
 		
 		Pageable pageable = new PageRequest(page, size);
 //		Pageable pageable = new PageRequest(0,10,new Sort(Sort.Direction.DESC,"id"));
-		Page<Orders> orderList=OrderRepository.findAll(pageable);
+		Page<Orders> orderList=orderRepository.findAll(pageable);
 		return new ResponseEntity<Page<Orders>>(orderList,HttpStatus.OK);
 	}
 	
@@ -78,7 +86,7 @@ public class OrderController {
 	@Transactional
 	@RequestMapping(path="/{id}",method = RequestMethod.GET)
 	public ResponseEntity<Orders> getOrder(@PathVariable("id") long id) {
-		Orders order=OrderRepository.findOne(id);
+		Orders order=orderRepository.findOne(id);
 		return new ResponseEntity<Orders>(order,HttpStatus.OK);
 	}	
 	
@@ -89,12 +97,15 @@ public class OrderController {
 	 * @throws Exception
 	 */	
 	@Transactional
-	@RequestMapping(path="/{id}",method = RequestMethod.PATCH)
-	public ResponseEntity<Orders> editOrder(@PathVariable("id") long id,@RequestParam String status) {
-		Orders order=OrderRepository.findOne(id);
-		order.setStatus(status);
-		OrderRepository.save(order);
-		return new ResponseEntity<Orders>(order,HttpStatus.OK);
+	@RequestMapping(path="/edit/{out_trade_no}",method = RequestMethod.GET)
+	public ResponseEntity<List<Orders>> editOrder(@PathVariable("out_trade_no") String out_trade_no,@RequestParam String status) {
+		
+		List<Orders> orders=orderRepository.findByOutTradeNo(out_trade_no);
+		for (Orders order : orders) {
+		    order.setStatus(status);
+		}
+		orderRepository.save(orders);
+		return new ResponseEntity<List<Orders>>(orders,HttpStatus.OK);
 	}
 	
 	
