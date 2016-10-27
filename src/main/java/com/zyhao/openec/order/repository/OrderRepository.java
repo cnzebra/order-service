@@ -1,5 +1,7 @@
 package com.zyhao.openec.order.repository;
 
+import java.util.List;
+
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.zyhao.openec.order.entity.Orders;
@@ -12,6 +14,8 @@ import com.zyhao.openec.order.entity.Orders;
  *
  */
 public interface OrderRepository extends PagingAndSortingRepository<Orders, Long> {
+
+	List<Orders> findByOutTradeNo(String out_trade_no);
 
 }
 

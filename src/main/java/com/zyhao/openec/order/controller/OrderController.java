@@ -1,6 +1,7 @@
 package com.zyhao.openec.order.controller;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.repository.OrderRepository;
+import com.zyhao.openec.service.OrderService;
 
 
 /**
@@ -32,7 +34,8 @@ public class OrderController {
 	
 	@Autowired
 	private OrderRepository OrderRepository;
-
+	@Autowired
+	private OrderService orderService;
 
 	
 	/**
@@ -47,6 +50,7 @@ public class OrderController {
 		Long ramdom = (long)(System.currentTimeMillis());
 		reqOrder.setOrderCode(ramdom);
 		reqOrder.setCreateTime(new Date());
+		reqOrder.setOutTradeNo(orderService.getTradeOutNo());
 		Orders order=OrderRepository.save(reqOrder);
 		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
 	}
@@ -86,12 +90,15 @@ public class OrderController {
 	 * @throws Exception
 	 */	
 	@Transactional
-	@RequestMapping(path="/{id}",method = RequestMethod.PATCH)
-	public ResponseEntity<Orders> editOrder(@PathVariable("id") long id,@RequestParam String status) {
-		Orders order=OrderRepository.findOne(id);
-		order.setStatus(status);
-		OrderRepository.save(order);
-		return new ResponseEntity<Orders>(order,HttpStatus.OK);
+	@RequestMapping(path="/edit/{out_trade_no}",method = RequestMethod.GET)
+	public ResponseEntity<List<Orders>> editOrder(@PathVariable("out_trade_no") String out_trade_no,@RequestParam String status) {
+		
+		List<Orders> orders=OrderRepository.findByOutTradeNo(out_trade_no);
+		for (Orders order : orders) {
+		    order.setStatus(status);
+		}
+		OrderRepository.save(orders);
+		return new ResponseEntity<List<Orders>>(orders,HttpStatus.OK);
 	}
 	
 	
