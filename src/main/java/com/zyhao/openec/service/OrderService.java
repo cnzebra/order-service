@@ -123,6 +123,7 @@ public class OrderService {
 			
 		}
 		bigOrder.setTradeOutNo(tradeOutNo);
+		bigOrder.setTotalPrice("500");
 		/**调用支付生成支付信息*/
 		createPayInfo(bigOrder);
 
