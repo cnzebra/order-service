@@ -59,16 +59,16 @@ public class OrderService {
 		return getPayInfoCode;
 	}
 
-	public String createPayInfo(Orders reqOrder) throws Exception {
+	public String createPayInfo(BigOrder reqOrder) throws Exception {
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);
 		
 		JSONObject json = new JSONObject();
-		json.put("outTradeNo", reqOrder.getOutTradeNo());
-		json.put("totalPrice", reqOrder.getRealSellPrice());
-		json.put("payPrice", reqOrder.getRealSellPrice());
-		json.put("userId", reqOrder.getMemberId());
+		json.put("outTradeNo", reqOrder.getTradeOutNo());
+		json.put("totalPrice", reqOrder.getTotalPrice());
+		json.put("payPrice", reqOrder.getTotalPrice());
+		json.put("userId", getAuthenticatedUser().getId());
 		json.put("payType","1");//1-现金支付 2-货到付款
 		json.put("channelId", reqOrder.getChannelId());
 
@@ -88,6 +88,8 @@ public class OrderService {
 	public BigOrder createOrder(BigOrder bigOrder) throws Exception{
 		System.out.println("OrderInfo----------->"+bigOrder);
 		
+		String tradeOutNo = getTradeOutNo(bigOrder.getChannelId());
+		
 		String address = bigOrder.getAddress();
 		String consignee = bigOrder.getConsignee();
 		String contactTel = bigOrder.getContactTel();
@@ -96,33 +98,39 @@ public class OrderService {
 		
 		for(SellerOrder sellerOrder : bigOrder.getSellerOrders()){
 			Orders tempOrder = new Orders();
+			Long currTime = System.currentTimeMillis();
 			//订单号生成算法待完善
-			Long ramdom = (long)(System.currentTimeMillis());
-			tempOrder.setOrderCode(ramdom);
 			
-			tempOrder.setCreatedAt(System.currentTimeMillis());
+			tempOrder.setOrderCode(currTime);
+			
+			tempOrder.setCreatedAt(currTime);
 
 			tempOrder.setStatus("0");
 			
 			tempOrder.setMemberId(getAuthenticatedUser().getId());
 			
-			//订单金额待计算
-			List<OrderItems> orderItems = new ArrayList();
-			for(OrderItems orderItem : sellerOrder.getOrderItems()){
-				
-			}
+			//todo 订单金额待计算
 			
-			tempOrder.setOutTradeNo(getTradeOutNo(tempOrder.getChannelId()));
-			Orders order = orderRepository.save(tempOrder);
-			/**调用支付生成支付信息*/
-			createPayInfo(order);
+			tempOrder.setAddress(address);
+			tempOrder.setConsignee(consignee);
+			tempOrder.setContactTel(contactTel);
+			tempOrder.setInvoiceHeader(invoiceContent);
+			tempOrder.setInvoiceContent(invoiceHeader);			
+			tempOrder.setOrderItems(sellerOrder.getOrderItems());
+			
+			tempOrder.setOutTradeNo(tradeOutNo);
+			orderRepository.save(tempOrder);
+			
+			
 		}
-		
+		bigOrder.setTradeOutNo(tradeOutNo);
+		/**调用支付生成支付信息*/
+		createPayInfo(bigOrder);
 
 
 //		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
 		
 		//返回bigOrder
-		return null;
+		return bigOrder;
 	}
 }

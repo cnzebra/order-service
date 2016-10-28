@@ -26,6 +26,18 @@ public class BigOrder {
 	 */
 	private String invoiceContent;
 	
+	/**
+	 * 支付渠道
+	 */
+	private String channelId;
+	
+	/**
+	 * 总金额
+	 */
+	private String totalPrice;
+	
+	private String tradeOutNo;
+	
 	private List<SellerOrder> sellerOrders;
 
 	public String getConsignee() {
@@ -76,12 +88,38 @@ public class BigOrder {
 		this.sellerOrders = sellerOrders;
 	}
 
+	public String getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
+	public String getTotalPrice() {
+		return totalPrice;
+	}
+
+	public void setTotalPrice(String totalPrice) {
+		this.totalPrice = totalPrice;
+	}
+
+	public String getTradeOutNo() {
+		return tradeOutNo;
+	}
+
+	public void setTradeOutNo(String tradeOutNo) {
+		this.tradeOutNo = tradeOutNo;
+	}
+
 	@Override
 	public String toString() {
 		return "BigOrder [consignee=" + consignee + ", address=" + address + ", contactTel=" + contactTel
-				+ ", invoiceHeader=" + invoiceHeader + ", invoiceContent=" + invoiceContent + ", sellerOrders="
-				+ sellerOrders + "]";
+				+ ", invoiceHeader=" + invoiceHeader + ", invoiceContent=" + invoiceContent + ", channelId=" + channelId
+				+ ", totalPrice=" + totalPrice + ", tradeOutNo=" + tradeOutNo + ", sellerOrders=" + sellerOrders + "]";
 	}
+
+	
 	
 	
 	
