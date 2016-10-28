@@ -54,7 +54,7 @@ public class OrderService {
     }
 
 	public String getTradeOutNo(String channelId) {
-		String getPayInfoCode = oAuth2RestTemplate.getForObject("http://payment-service/api/v1/getPayInfoCode?channelId="+channelId, String.class);		
+		String getPayInfoCode = oAuth2RestTemplate.getForObject("http://payment-service/v1/getPayInfoCode?channel_id="+channelId, String.class);		
 		log.info("getTradeOutNo is "+getPayInfoCode);
 		return getPayInfoCode;
 	}
