@@ -2,6 +2,7 @@ package com.zyhao.openec.order.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,10 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zyhao.openec.order.entity.Orders;
+import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.repository.OrderRepository;
 import com.zyhao.openec.service.OrderService;
-
-import ch.qos.logback.classic.Logger;
 
 
 /**
@@ -36,6 +36,7 @@ public class OrderController {
 	
 	@Autowired
 	private OrderRepository orderRepository;
+	
 	@Autowired
 	private OrderService orderService;
 
@@ -48,18 +49,10 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/new",method=RequestMethod.POST,consumes="application/json")
-	public ResponseEntity<String> createOrder(@Validated @RequestBody Orders reqOrder) throws Exception {
-		System.out.println("OrderInfo----------->"+reqOrder);
-		Long ramdom = (long)(System.currentTimeMillis());
-		reqOrder.setOrderCode(ramdom);
-
-		reqOrder.setCreatedAt(new Date().getTime());
-		reqOrder.setOutTradeNo(orderService.getTradeOutNo(reqOrder.getChannelId()));
-		Orders order=orderRepository.save(reqOrder);
-		/**调用支付生成支付信息*/
-		orderService.createPayInfo(order);
-
-		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
+	public ResponseEntity<String> createOrder(@Validated @RequestBody BigOrder reqOrder) throws Exception {
+        return Optional.ofNullable(orderService.createOrder(reqOrder))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find createOrder"));
 	}
 	
 	/**

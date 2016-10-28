@@ -1,8 +1,10 @@
 package com.zyhao.openec.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.http.HttpEntity;
@@ -10,12 +12,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
+import com.zyhao.openec.order.entity.OrderItems;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.entity.User;
+import com.zyhao.openec.order.pojo.BigOrder;
+import com.zyhao.openec.order.pojo.SellerOrder;
 import com.zyhao.openec.order.repository.OrderRepository;
 
 /**
@@ -73,5 +78,51 @@ public class OrderService {
 		String createPayInfo = oAuth2RestTemplate.postForObject("http://payment-service/api/v1/createPayInfo",formEntity, String.class);		
 		log.info("createPayInfo is "+createPayInfo);
 		return createPayInfo;
+	}
+	
+	/**
+	 * 生成订单
+	 * @throws Exception 
+	 */
+	@Transactional
+	public BigOrder createOrder(BigOrder bigOrder) throws Exception{
+		System.out.println("OrderInfo----------->"+bigOrder);
+		
+		String address = bigOrder.getAddress();
+		String consignee = bigOrder.getConsignee();
+		String contactTel = bigOrder.getContactTel();
+		String invoiceContent = bigOrder.getInvoiceContent();
+		String invoiceHeader = bigOrder.getInvoiceHeader();
+		
+		for(SellerOrder sellerOrder : bigOrder.getSellerOrders()){
+			Orders tempOrder = new Orders();
+			//订单号生成算法待完善
+			Long ramdom = (long)(System.currentTimeMillis());
+			tempOrder.setOrderCode(ramdom);
+			
+			tempOrder.setCreatedAt(System.currentTimeMillis());
+
+			tempOrder.setStatus("0");
+			
+			tempOrder.setMemberId(getAuthenticatedUser().getId());
+			
+			//订单金额待计算
+			List<OrderItems> orderItems = new ArrayList();
+			for(OrderItems orderItem : sellerOrder.getOrderItems()){
+				
+			}
+			
+			tempOrder.setOutTradeNo(getTradeOutNo(tempOrder.getChannelId()));
+			Orders order = orderRepository.save(tempOrder);
+			/**调用支付生成支付信息*/
+			createPayInfo(order);
+		}
+		
+
+
+//		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
+		
+		//返回bigOrder
+		return null;
 	}
 }
