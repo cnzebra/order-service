@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.http.HttpEntity;
@@ -14,8 +15,6 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-
-import com.amazonaws.util.json.JSONObject;
 import com.zyhao.openec.order.entity.OrderItems;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.entity.User;
@@ -75,7 +74,7 @@ public class OrderService {
         log.info("createPayInfo method call order method param is "+json);
         
 	    HttpEntity<String> formEntity = new HttpEntity<String>(json.toString(), headers);
-		String createPayInfo = oAuth2RestTemplate.postForObject("http://payment-service/api/v1/createPayInfo",formEntity, String.class);		
+		String createPayInfo = oAuth2RestTemplate.postForObject("http://payment-service/v1/createPayInfo",formEntity, String.class);		
 		log.info("createPayInfo is "+createPayInfo);
 		return createPayInfo;
 	}
