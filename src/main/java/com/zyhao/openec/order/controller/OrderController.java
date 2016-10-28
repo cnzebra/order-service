@@ -46,14 +46,21 @@ public class OrderController {
 	@Transactional
 	@RequestMapping(path = "/new", method = RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<String> createOrder(@Validated @RequestBody Orders reqOrder) throws Exception {
-		Long ramdom = (long) (System.currentTimeMillis());
+
+		System.out.println("OrderInfo----------->"+reqOrder);
+		Long ramdom = (long)(System.currentTimeMillis());
+
 		reqOrder.setOrderCode(ramdom);
-		reqOrder.setCreateTime(new Date());
+
+		reqOrder.setCreatedAt(new Date().getTime());
 		reqOrder.setOutTradeNo(orderService.getTradeOutNo(reqOrder.getChannelId()));
 		Orders order = orderRepository.save(reqOrder);
 		/**调用支付生成支付信息*/
 		orderService.createPayInfo(order);
-		return new ResponseEntity<String>(String.valueOf(order.getId()), HttpStatus.OK);
+
+
+		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
+
 	}
 	
 	
