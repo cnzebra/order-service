@@ -1,8 +1,5 @@
 package com.zyhao.openec.order.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -15,7 +12,6 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import com.zyhao.openec.order.entity.OrderItems;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.entity.User;
 import com.zyhao.openec.order.pojo.BigOrder;
