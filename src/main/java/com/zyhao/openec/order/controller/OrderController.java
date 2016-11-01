@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.repository.OrderRepository;
-import com.zyhao.openec.service.OrderService;
+import com.zyhao.openec.order.service.OrderService;
 
 /**
  * 
