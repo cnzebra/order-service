@@ -1,6 +1,5 @@
 package com.zyhao.openec.order.controller;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zyhao.openec.order.entity.Orders;
+import com.zyhao.openec.order.entity.RefundOrders;
 import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.repository.OrderRepository;
 import com.zyhao.openec.order.service.OrderService;
@@ -64,13 +64,10 @@ public class OrderController {
 	 * @throws Exception
 	 */
 	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<Page<Orders>> queryOrderList(@RequestParam int page, @RequestParam int size) {
-
-		Pageable pageable = new PageRequest(page, size);
-		// Pageable pageable = new PageRequest(0,10,new
-		// Sort(Sort.Direction.DESC,"id"));
-		Page<Orders> orderList = orderRepository.findAll(pageable);
-		return new ResponseEntity<Page<Orders>>(orderList, HttpStatus.OK);
+	public ResponseEntity<Page<Orders>> queryOrderList(@RequestParam int page, @RequestParam int size,@RequestParam String status) throws Exception {
+        return Optional.ofNullable(orderService.getOrderList(page, size,status))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find getOrderList"));	
 	}
 
 	/**
@@ -106,5 +103,34 @@ public class OrderController {
 		orderRepository.save(orders);
 		return new ResponseEntity<List<Orders>>(orders, HttpStatus.OK);
 	}
-
+	
+	/**
+	 * 申请退单
+	 * @param reqRefundOrder
+	 * @return
+	 * @throws Exception
+	 */
+	@Transactional
+	@RequestMapping(path="/newRefund",method=RequestMethod.POST)
+	public ResponseEntity<String> createRefundOrder(@Validated @RequestBody RefundOrders refundOrders) throws Exception {
+        return Optional.ofNullable(orderService.createRefundOrder(refundOrders))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find createRefundOrder"));	
+	}
+	
+	/**
+	 * 退单列表
+	 * @param reqRefundOrder
+	 * @return
+	 * @throws Exception
+	 */
+	@Transactional
+	@RequestMapping(path="/refundList",method=RequestMethod.GET)
+	public ResponseEntity<String> getRefundOrderList(@Validated @RequestParam int page, @RequestParam int size) throws Exception {
+        return Optional.ofNullable(orderService.getRefundList(page, size))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find createRefundOrder"));	
+	}
+	
+	
 }

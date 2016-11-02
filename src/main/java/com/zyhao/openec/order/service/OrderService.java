@@ -5,18 +5,26 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
 import com.zyhao.openec.order.entity.Orders;
+import com.zyhao.openec.order.entity.RefundOrders;
 import com.zyhao.openec.order.entity.User;
 import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.pojo.SellerOrder;
 import com.zyhao.openec.order.repository.OrderRepository;
+import com.zyhao.openec.order.repository.RefundOrderRepository;
 
 /**
  * 
@@ -39,6 +47,8 @@ public class OrderService {
     }
 	@Autowired
 	private OrderRepository orderRepository;
+	@Autowired
+	private RefundOrderRepository refundOrderRepository;
 	
 	/**
 	 * 认证平台
@@ -81,7 +91,7 @@ public class OrderService {
 	 */
 	@Transactional
 	public BigOrder createOrder(BigOrder bigOrder) throws Exception{
-		System.out.println("OrderInfo----------->"+bigOrder);
+		log.info("OrderInfo----------->"+bigOrder);
 		
 		String tradeOutNo = getTradeOutNo(bigOrder.getChannelId());
 		
@@ -96,7 +106,7 @@ public class OrderService {
 			Long currTime = System.currentTimeMillis();
 			//订单号生成算法待完善
 			
-			tempOrder.setOrderCode(currTime);
+			tempOrder.setOrderCode(""+currTime);
 			
 			tempOrder.setCreatedAt(currTime);
 
@@ -129,4 +139,70 @@ public class OrderService {
 		//返回bigOrder
 		return bigOrder;
 	}
+
+	/**
+	 * 申请退单
+	 * @param refundOrders
+	 * @return
+	 */
+	public RefundOrders createRefundOrder(RefundOrders refundOrders) {
+		// TODO Auto-generated method stub
+		User user = getAuthenticatedUser();
+		
+		Long currTime = System.currentTimeMillis();
+		
+		refundOrders.setRefundOrderCode(""+currTime);
+		
+		refundOrders.setCreateAt(currTime);
+		
+		refundOrders.setMemberId(user.getId());
+		
+		return refundOrderRepository.save(refundOrders);
+		
+	}
+	
+	/**
+	 * 退单列表
+	 * @param refundOrders
+	 * @return
+	 */
+	public Page<RefundOrders> getRefundList(int page,int size) {
+		
+		User user = getAuthenticatedUser();
+		Pageable pageable = new PageRequest(page, size);
+		Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberId(user.getId(),pageable);
+		return refundOrderList;
+
+	}
+
+	/**
+	 * 订单列表(按状态)
+	 * @param page
+	 * @param size
+	 * @return
+	 */
+	public Page<Orders> getOrderList(int page, int size,String status) {
+		
+		User user = getAuthenticatedUser();
+		Pageable pageable = new PageRequest(page, size);
+		Page<Orders> orderList = orderRepository.findByMemberIdAndStatus(user.getId(),status,pageable);
+		return orderList;
+		
+	}
+	
+	/**
+	 * 待支付订单列表
+	 * @param page
+	 * @param size
+	 * @return
+	 */
+	public Page<Orders> getWaitPayOrderList(int page, int size) {
+		//todo
+//		User user = getAuthenticatedUser();
+//		Pageable pageable = new PageRequest(page, size);
+//		Page<Orders> orderList = orderRepository.findByMemberId(user.getId(),pageable);
+		return null;
+		
+	}
+	
 }
