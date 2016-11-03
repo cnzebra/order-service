@@ -109,7 +109,7 @@ public class Orders implements Serializable {
 	@OneToMany(cascade = { CascadeType.PERSIST, CascadeType.REFRESH,  
             CascadeType.REMOVE }, fetch = FetchType.LAZY)
 	@JoinColumn(name="orderId",referencedColumnName ="orderCode")
-	private List<OrderItems> orderItems;
+	private List<OrderItem> orderItems;
 
 	/**
 	 * Constructor.
@@ -526,11 +526,11 @@ public class Orders implements Serializable {
 		return result;
 	}
 
-	public List<OrderItems> getOrderItems() {
+	public List<OrderItem> getOrderItems() {
 		return orderItems;
 	}
 
-	public void setOrderItems(List<OrderItems> orderItems) {
+	public void setOrderItems(List<OrderItem> orderItems) {
 		this.orderItems = orderItems;
 	}
 

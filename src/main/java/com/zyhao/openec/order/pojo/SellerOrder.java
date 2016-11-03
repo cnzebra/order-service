@@ -2,7 +2,7 @@ package com.zyhao.openec.order.pojo;
 
 import java.util.List;
 
-import com.zyhao.openec.order.entity.OrderItems;
+import com.zyhao.openec.order.entity.OrderItem;
 
 public class SellerOrder {
 	
@@ -10,7 +10,7 @@ public class SellerOrder {
 	private Long sellerId;
 	private Integer goodsCount;
 	
-	private List<OrderItems> OrderItems;
+	private List<OrderItem> OrderItems;
 
 	public String getSellerName() {
 		return sellerName;
@@ -36,11 +36,11 @@ public class SellerOrder {
 		this.goodsCount = goodsCount;
 	}
 
-	public List<OrderItems> getOrderItems() {
+	public List<OrderItem> getOrderItems() {
 		return OrderItems;
 	}
 
-	public void setOrderItems(List<OrderItems> orderItems) {
+	public void setOrderItems(List<OrderItem> orderItems) {
 		OrderItems = orderItems;
 	}
 
