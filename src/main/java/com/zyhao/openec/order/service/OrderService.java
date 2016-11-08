@@ -1,5 +1,8 @@
 package com.zyhao.openec.order.service;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -10,15 +13,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.zyhao.openec.order.entity.Orders;
+import com.zyhao.openec.order.entity.PayInfo;
 import com.zyhao.openec.order.entity.RefundOrders;
 import com.zyhao.openec.order.entity.User;
 import com.zyhao.openec.order.pojo.BigOrder;
@@ -196,13 +198,29 @@ public class OrderService {
 	 * @param size
 	 * @return
 	 */
-	public Page<Orders> getWaitPayOrderList(int page, int size) {
+	public List<PayInfo> getWaitPayOrderList(int page, int size) {
+		
+//		/api/payment/v1/getPayInfo/noPayment
+		PayInfo[] waitPayInfoAry = restTemplate.getForObject("http://payment-service/v1/getPayInfo/noPayment",PayInfo[].class);
+		
+		List<PayInfo> waitPayInfoList = Arrays.asList(waitPayInfoAry);
+		 			
 		//todo
 //		User user = getAuthenticatedUser();
 //		Pageable pageable = new PageRequest(page, size);
 //		Page<Orders> orderList = orderRepository.findByMemberId(user.getId(),pageable);
-		return null;
+		return waitPayInfoList;
 		
+	}
+	
+	/**
+	 * 待支付订单详情
+	 * @param page
+	 * @param size
+	 * @return
+	 */
+	public List<Orders> getWaitPayOrderDetail(String outTradeNo) {
+		return orderRepository.findByOutTradeNo(outTradeNo);
 	}
 	
 }

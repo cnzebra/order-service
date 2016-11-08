@@ -47,7 +47,7 @@ public class OrderController {
 	 * @throws Exception
 	 */
 	@Transactional
-	@RequestMapping(path="/new",method=RequestMethod.POST,consumes="application/json")
+	@RequestMapping(path="/new",method=RequestMethod.POST)
 	public ResponseEntity<String> createOrder(@Validated @RequestBody BigOrder reqOrder) throws Exception {
         return Optional.ofNullable(orderService.createOrder(reqOrder))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
@@ -129,8 +129,35 @@ public class OrderController {
 	public ResponseEntity<String> getRefundOrderList(@Validated @RequestParam int page, @RequestParam int size) throws Exception {
         return Optional.ofNullable(orderService.getRefundList(page, size))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
-                .orElseThrow(() -> new Exception("Could not find createRefundOrder"));	
+                .orElseThrow(() -> new Exception("Could not find getRefundOrderList"));	
 	}
 	
+	/**
+	 * 退单列表
+	 * @param reqRefundOrder
+	 * @return
+	 * @throws Exception
+	 */
+	@Transactional
+	@RequestMapping(path="/waitPayOrderList",method=RequestMethod.GET)
+	public ResponseEntity<String> getWaitPayOrderList(@Validated @RequestParam int page, @RequestParam int size) throws Exception {
+        return Optional.ofNullable(orderService.getWaitPayOrderList(page, size))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find getWaitPayOrderList"));	
+	}
+	
+	/**
+	 * 退单详情
+	 * @param reqRefundOrder
+	 * @return
+	 * @throws Exception
+	 */
+	@Transactional
+	@RequestMapping(path="/waitPayOrderDetail",method=RequestMethod.GET)
+	public ResponseEntity<String> getWaitPayOrderDetail(@Validated @RequestParam String outTradeNo) throws Exception {
+        return Optional.ofNullable(orderService.getWaitPayOrderDetail(outTradeNo))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find getWaitPayOrderDetail"));	
+	}
 	
 }

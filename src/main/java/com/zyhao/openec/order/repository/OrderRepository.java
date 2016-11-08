@@ -17,9 +17,12 @@ import com.zyhao.openec.order.entity.Orders;
  */
 public interface OrderRepository extends PagingAndSortingRepository<Orders, Long> {
 
-	List<Orders> findByOutTradeNo(String out_trade_no);
+	List<Orders> findByOutTradeNo(String outTradeNo);
 
 	Page<Orders> findByMemberIdAndStatus(Long id,String status, Pageable pageable);
 
+	Page<Orders> findByOutTradeNo(String outTradeNo, Pageable pageable);
+	
+	
 }
 
