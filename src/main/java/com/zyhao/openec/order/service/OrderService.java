@@ -128,10 +128,15 @@ public class OrderService {
 			tempOrder.setConsignee(consignee);
 			tempOrder.setContactTel(contactTel);
 			tempOrder.setInvoiceHeader(invoiceContent);
-			tempOrder.setInvoiceContent(invoiceHeader);			
+			tempOrder.setInvoiceContent(invoiceHeader);	
+			
 			tempOrder.setOrderItems(sellerOrder.getOrderItems());
 			
 			tempOrder.setOutTradeNo(tradeOutNo);
+			tempOrder.setPayStatus("0");
+
+			log.info("tempOrder----------->"+tempOrder.toString());
+			
 			orderRepository.save(tempOrder);
 			
 			
