@@ -133,7 +133,7 @@ public class OrderService {
 			tempOrder.setOrderItems(sellerOrder.getOrderItems());
 			
 			tempOrder.setOutTradeNo(tradeOutNo);
-			tempOrder.setPayStatus("0");
+			tempOrder.setPayStatus("0"); 
 
 			log.info("tempOrder----------->"+tempOrder.toString());
 			
