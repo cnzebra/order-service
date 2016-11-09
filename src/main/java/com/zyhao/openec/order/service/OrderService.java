@@ -92,9 +92,7 @@ public class OrderService {
 	 * @throws Exception 
 	 */
 	@Transactional
-	public BigOrder createOrder(BigOrder bigOrder) throws Exception{
-		log.info("OrderInfo----------->"+bigOrder);
-		
+	public BigOrder createOrder(BigOrder bigOrder) throws Exception{		
 		String tradeOutNo = getTradeOutNo(bigOrder.getChannelId());
 		
 		String address = bigOrder.getAddress();
@@ -116,7 +114,15 @@ public class OrderService {
 			
 			tempOrder.setMemberId(getAuthenticatedUser().getId());
 			
-			//todo 订单金额待计算
+			tempOrder.setRealSellPrice(sellerOrder.getRealSellPrice());
+			
+			tempOrder.setGoodsCount(sellerOrder.getGoodsCount());
+			
+			tempOrder.setSellerId(sellerOrder.getSellerId());
+			
+			tempOrder.setSellerName(sellerOrder.getSellerName());
+				
+			tempOrder.setChannelId(bigOrder.getChannelId());
 			
 			tempOrder.setAddress(address);
 			tempOrder.setConsignee(consignee);
@@ -131,7 +137,7 @@ public class OrderService {
 			
 		}
 		bigOrder.setTradeOutNo(tradeOutNo);
-		bigOrder.setTotalPrice("500");
+		bigOrder.setTotalPrice(bigOrder.getTotalPrice());
 		/**调用支付生成支付信息*/
 		createPayInfo(bigOrder);
 

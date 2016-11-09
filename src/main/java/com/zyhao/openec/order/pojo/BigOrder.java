@@ -34,7 +34,7 @@ public class BigOrder {
 	/**
 	 * 总金额
 	 */
-	private String totalPrice;
+	private Integer totalPrice;
 	
 	private String tradeOutNo;
 	
@@ -96,11 +96,11 @@ public class BigOrder {
 		this.channelId = channelId;
 	}
 
-	public String getTotalPrice() {
+	public Integer getTotalPrice() {
 		return totalPrice;
 	}
 
-	public void setTotalPrice(String totalPrice) {
+	public void setTotalPrice(Integer totalPrice) {
 		this.totalPrice = totalPrice;
 	}
 

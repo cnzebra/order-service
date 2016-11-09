@@ -71,7 +71,7 @@ public class Orders implements Serializable {
 	private Long memberId;
 
 	/** 商品件数. */
-	private Long goodsCount;
+	private Integer goodsCount;
 
 	/** 订单金额(分). */
 	private Integer realSellPrice;
@@ -350,7 +350,7 @@ public class Orders implements Serializable {
 	 * @param goodsCount
 	 *            商品件数
 	 */
-	public void setGoodsCount(Long goodsCount) {
+	public void setGoodsCount(Integer goodsCount) {
 		this.goodsCount = goodsCount;
 	}
 
@@ -359,7 +359,7 @@ public class Orders implements Serializable {
 	 * 
 	 * @return 商品件数
 	 */
-	public Long getGoodsCount() {
+	public Integer getGoodsCount() {
 		return this.goodsCount;
 	}
 

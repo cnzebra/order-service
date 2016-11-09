@@ -9,6 +9,7 @@ public class SellerOrder {
 	private String sellerName;
 	private Long sellerId;
 	private Integer goodsCount;
+	private Integer realSellPrice;
 	
 	private List<OrderItem> OrderItems;
 
@@ -44,11 +45,18 @@ public class SellerOrder {
 		OrderItems = orderItems;
 	}
 
+	public Integer getRealSellPrice() {
+		return realSellPrice;
+	}
+
+	public void setRealSellPrice(Integer realSellPrice) {
+		this.realSellPrice = realSellPrice;
+	}
+
 	@Override
 	public String toString() {
 		return "SellerOrder [sellerName=" + sellerName + ", sellerId=" + sellerId + ", goodsCount=" + goodsCount
-				+ ", OrderItems=" + OrderItems + "]";
+				+ ", realSellPrice=" + realSellPrice + ", OrderItems=" + OrderItems + "]";
 	}
-
 	
 }
