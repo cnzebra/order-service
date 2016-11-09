@@ -29,8 +29,7 @@ public class OrderItem implements Serializable {
 	@GeneratedValue(strategy=GenerationType.AUTO)	
 	private Long id;
 
-	/** 订单号. */
-	private Long orderId;
+
 
 	/** 商品数量. */
 	private Integer goodsCount;
@@ -50,7 +49,18 @@ public class OrderItem implements Serializable {
 
 	/** 规格(JSON). */
 	private String specifications;
-		
+	
+	
+	private String orderCode;
+	
+	public String getOrderCode() {
+		return orderCode;
+	}
+
+	public void setOrderCode(String orderCode) {
+		this.orderCode = orderCode;
+	}
+
 	/**
 	 * Constructor.
 	 */
@@ -76,24 +86,8 @@ public class OrderItem implements Serializable {
 		return this.id;
 	}
 
-	/**
-	 * Set the 订单号.
-	 * 
-	 * @param orderId
-	 *            订单号
-	 */
-	public void setOrderId(Long orderId) {
-		this.orderId = orderId;
-	}
 
-	/**
-	 * Get the 订单号.
-	 * 
-	 * @return 订单号
-	 */
-	public Long getOrderId() {
-		return this.orderId;
-	}
+
 
 	/**
 	 * Set the 商品数量.
@@ -247,9 +241,11 @@ public class OrderItem implements Serializable {
 
 	@Override
 	public String toString() {
-		return "OrderItem [id=" + id + ", orderId=" + orderId + ", goodsCount=" + goodsCount + ", sku=" + sku
-				+ ", productName=" + productName + ", price=" + price + ", productPic=" + productPic
-				+ ", specifications=" + specifications + "]";
+		return "OrderItem [id=" + id + ", goodsCount=" + goodsCount + ", sku=" + sku + ", productName=" + productName
+				+ ", price=" + price + ", productPic=" + productPic + ", specifications=" + specifications
+				+ ", orderCode=" + orderCode + "]";
 	}
+
+
 
 }

@@ -2,7 +2,7 @@ spring:
   application:
     name: order-service
 server:
-  port: 8134
+  port: 8124
 ---
 spring:
   profiles: docker

@@ -108,7 +108,7 @@ public class Orders implements Serializable {
     // mappedBy表示关系统被维护端，它的值是关系维护端维护关系的属性   mappedBy = "orderId"
 	@OneToMany(cascade = { CascadeType.PERSIST, CascadeType.REFRESH,  
             CascadeType.REMOVE }, fetch = FetchType.LAZY)
-	@JoinColumn(name="orderId",referencedColumnName ="orderCode")
+	@JoinColumn(name="orderCode",referencedColumnName ="orderCode")
 	private List<OrderItem> orderItems;
 
 	/**
