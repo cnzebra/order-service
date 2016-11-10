@@ -13,7 +13,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.pojo.SellerOrder;
 import com.zyhao.openec.order.repository.OrderRepository;
 import com.zyhao.openec.order.repository.RefundOrderRepository;
+import com.zyhao.openec.order.util.RepEntity;
 
 /**
  * 
@@ -194,13 +197,25 @@ public class OrderService {
 	 * @param size
 	 * @return
 	 */
-	public Page<Orders> getOrderList(int page, int size,String status) {
-		
-		User user = getAuthenticatedUser();
-		Pageable pageable = new PageRequest(page, size);
-		Page<Orders> orderList = orderRepository.findByMemberIdAndStatus(user.getId(),status,pageable);
-		return orderList;
-		
+	public RepEntity getOrderList(int page, int size,String status) {
+		page = page - 1;
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			Pageable pageable = new PageRequest(page, size);
+			Page<Orders> orderList = orderRepository.findByMemberIdAndStatus(user.getId(),status,pageable);
+			
+			resp.setMsg("订单列表查询成功");
+			resp.setStatus("0");
+			resp.setData(orderList);
+			
+			return resp;
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setMsg("订单列表查询失败");
+			resp.setStatus("-1");
+			return resp;
+		}	
 	}
 	
 	/**
@@ -230,8 +245,95 @@ public class OrderService {
 	 * @param size
 	 * @return
 	 */
-	public List<Orders> getWaitPayOrderDetail(String outTradeNo) {
-		return orderRepository.findByOutTradeNo(outTradeNo);
+	public RepEntity getWaitPayOrderDetail(String outTradeNo) {
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(user.getId(),outTradeNo);
+			resp.setStatus("0");
+			resp.setMsg("查询成功");
+			resp.setData(orders);
+			
+			return resp;
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setStatus("-1");
+			resp.setMsg("详情查询失败");
+			return resp;
+		}
+
 	}
 	
+	
+	/**
+	 * 订单详情
+	 * @param page
+	 * @param size
+	 * @return
+	 */
+	public RepEntity getOrderByOrderCode(String orderCode){
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(),orderCode);
+			
+			resp.setStatus("0");
+			resp.setMsg("详情查询成功");
+			resp.setData(order);
+			
+			return resp;
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setStatus("-1");
+			resp.setMsg("详情查询失败");
+			return resp;
+		}
+
+	}
+
+	/**
+	 * 修改订单状态
+	 * @param orderCode
+	 * @param status
+	 * @return
+	 */
+	public RepEntity editOrderStatus(String orderCode, String status) {
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(),orderCode);
+			
+			/**
+			 * 3 状态为确认收货 , 5状态为取消订单
+			 */
+			if(!(status.equals("3") || status.equals("5"))){
+				
+				resp.setStatus("-1");
+				resp.setMsg("订单状态修改失败,状态不允许");
+				
+				return resp;
+				
+			}
+			
+			order.setStatus(status);
+			orderRepository.save(order);
+			
+			resp.setStatus("0");
+			resp.setMsg("订单状态修改成功");
+			resp.setData(order);
+			
+			return resp;
+			
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setStatus("-1");
+			resp.setMsg("订单状态修改失败");
+			return resp;
+		}
+
+		
+	}
+	
+
 }
