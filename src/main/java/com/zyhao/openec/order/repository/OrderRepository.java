@@ -63,5 +63,12 @@ public interface OrderRepository extends PagingAndSortingRepository<Orders, Long
 //	 */
 //	Page<Orders>
 	
+	/**
+	 * 批量返回多条订单数据
+	 * @param outTradeNos
+	 * @return
+	 */
+	public List<Orders> findByOutTradeNoIn(List<String> outTradeNos);
+	
 }
 
