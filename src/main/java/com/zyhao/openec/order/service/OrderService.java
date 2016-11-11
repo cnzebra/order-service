@@ -1,7 +1,10 @@
 package com.zyhao.openec.order.service;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.entity.PayInfo;
 import com.zyhao.openec.order.entity.RefundOrders;
@@ -81,7 +85,8 @@ public class OrderService {
 		json.put("userId", getAuthenticatedUser().getId());
 		json.put("payType","1");//1-现金支付 2-货到付款
 		json.put("channelId", reqOrder.getChannelId());
-
+		json.put("payStatus", "0");
+		
         log.info("createPayInfo method call order method param is "+json);
         
 	    HttpEntity<String> formEntity = new HttpEntity<String>(json.toString(), headers);
@@ -192,7 +197,7 @@ public class OrderService {
 	}
 
 	/**
-	 * 订单列表(按状态)
+	 * 订单列表(按状态,排除删除态和待支付态)
 	 * @param page
 	 * @param size
 	 * @return
@@ -201,6 +206,15 @@ public class OrderService {
 		page = page - 1;
 		RepEntity resp = new RepEntity();
 		try{
+			
+			if(status.equals("0") || status.equals("100")){
+				
+				resp.setMsg("订单列表查询失败，状态不允许");
+				resp.setStatus("-1");
+				
+				return resp;
+			}
+			
 			User user = getAuthenticatedUser();
 			Pageable pageable = new PageRequest(page, size);
 			Page<Orders> orderList = orderRepository.findByMemberIdAndStatus(user.getId(),status,pageable);
@@ -224,20 +238,44 @@ public class OrderService {
 	 * @param size
 	 * @return
 	 */
-	public List<PayInfo> getWaitPayOrderList(int page, int size) {
-		
-//		/api/payment/v1/getPayInfo/noPayment
-		PayInfo[] waitPayInfoAry = restTemplate.getForObject("http://payment-service/v1/getPayInfo/noPayment",PayInfo[].class);
-		
-		List<PayInfo> waitPayInfoList = Arrays.asList(waitPayInfoAry);
-		 			
-		//todo
-//		User user = getAuthenticatedUser();
-//		Pageable pageable = new PageRequest(page, size);
-//		Page<Orders> orderList = orderRepository.findByMemberId(user.getId(),pageable);
-		return waitPayInfoList;
+	public RepEntity getWaitPayOrderList(int page, int size) {
+		RepEntity resp = new RepEntity();
+		page = page -1;
+		try{
+			//当前用户待支付列表
+			RepEntity  waitPayInfoArysResp = restTemplate.getForObject("http://payment-service/v1/getPayInfo/noPayment?page="+page+"&size="+size,RepEntity.class);
+					
+			List<LinkedHashMap> waitPayInfoList = (List<LinkedHashMap>) waitPayInfoArysResp.getData();
+
+			List<List<Orders>> orderList = waitPayInfoList.stream().map(payInfoMap -> getWaitPayOrderByOutTradeNo(payInfoMap)).collect(Collectors.toList());
+			
+			resp.setStatus("0");
+			resp.setMsg("订单列表查询成功");
+			resp.setData(orderList);
+			resp.setTotalElements(waitPayInfoArysResp.getTotalElements());
+			resp.setTotalPages(waitPayInfoArysResp.getTotalPages());
+			
+			return resp;
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setStatus("-1");
+			resp.setMsg("订单列表查询失败");
+			return resp;
+		}
+
 		
 	}
+	
+	public List<Orders> getWaitPayOrderByOutTradeNo(LinkedHashMap<String, Object> payInfoMap){
+		try{	
+		User user = getAuthenticatedUser();
+		return orderRepository.findByMemberIdAndOutTradeNo(user.getId(),""+payInfoMap.get("outTradeNo"));
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	
 	/**
 	 * 待支付订单详情
@@ -276,6 +314,13 @@ public class OrderService {
 		try{
 			User user = getAuthenticatedUser();
 			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(),orderCode);
+			
+			if(order.getStatus().equals("100") || order == null){
+				resp.setStatus("-1");
+				resp.setMsg("该订单不存在或已被删除");
+				
+				return resp;
+			}
 			
 			resp.setStatus("0");
 			resp.setMsg("详情查询成功");
@@ -333,6 +378,65 @@ public class OrderService {
 		}
 
 		
+	}
+
+	
+	/**
+	 * 根据订单号删除订单
+	 * @param orderCode
+	 * @return
+	 */
+	public Object deleteOrder(String orderCode) {
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(),orderCode);
+			
+			if(order.getStatus().equals("100") || order == null){
+				resp.setStatus("-1");
+				resp.setMsg("该订单不存在或已被删除");
+				
+				return resp;
+			}
+			
+			order.setStatus("100");
+			orderRepository.save(order);
+			
+			resp.setStatus("0");
+			resp.setMsg("订单删除成功");
+			resp.setData(order);
+			
+			return resp;
+						
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setStatus("-1");
+			resp.setMsg("订单删除失败");
+			return resp;
+		}
+	}
+
+	/**
+	 * 修改订单支付状态
+	 * @param out_trade_no
+	 * @param status
+	 * @return
+	 */
+	public Object editOrderPayStatus(String out_trade_no, String status) {
+		User user = getAuthenticatedUser();
+		List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(user.getId(),out_trade_no);
+		for (Orders order : orders) {
+			//若支付失败，订单状态为待支付
+			if(status.equals("2")){
+				order.setStatus("0");
+			}else{
+				order.setStatus(status);
+			}
+			order.setPayStatus(status);
+		}
+		orderRepository.save(orders);
+
+		return orders;
 	}
 	
 

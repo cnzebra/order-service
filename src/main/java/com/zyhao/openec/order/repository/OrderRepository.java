@@ -20,40 +20,48 @@ public interface OrderRepository extends PagingAndSortingRepository<Orders, Long
 	
 	/**
 	 * 通过支付流水号查询订单,(可作为待支付订单详情)
-	 * @param id
+	 * @param memberId
 	 * @param outTradeNo
 	 * @return
 	 */
-	List<Orders> findByMemberIdAndOutTradeNo(Long id,String outTradeNo);
+	List<Orders> findByMemberIdAndOutTradeNo(Long memberId,String outTradeNo);
 	
 	
 	/**
 	 * 通过订单号查询订单详情
-	 * @param id
+	 * @param memberId
 	 * @param orderCode
 	 * @return
 	 */
-	Orders findByMemberIdAndOrderCode(Long id,String orderCode);
+	Orders findByMemberIdAndOrderCode(Long memberId,String orderCode);
 	
 	/**
 	 * 按状态查询订单列表
-	 * @param id
+	 * @param memberId
 	 * @param status
 	 * @param pageable
 	 * @return
 	 */
-	Page<Orders> findByMemberIdAndStatus(Long id,String status, Pageable pageable);
+	Page<Orders> findByMemberIdAndStatus(Long memberId,String status, Pageable pageable);
 
 	
 	/**
 	 * 按交易流水号查询订单列表,(可作为待支付订单详情,pageable方式)
-	 * @param id
+	 * @param memberId
 	 * @param status
 	 * @param pageable
 	 * @return
 	 */
-	Page<Orders> findByMemberIdAndOutTradeNo(Long id,String outTradeNo, Pageable pageable);
+	Page<Orders> findByMemberIdAndOutTradeNo(Long memberId,String outTradeNo, Pageable pageable);
 	
+//	/**
+//	 * 查询某人全部订单(pageable方式)
+//	 * @param memberId
+//	 * @param status
+//	 * @param pageable
+//	 * @return
+//	 */
+//	Page<Orders>
 	
 }
 

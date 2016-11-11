@@ -109,20 +109,10 @@ public class OrderController {
 	@Transactional
 	@RequestMapping(path = "/edit/{out_trade_no}", method = RequestMethod.GET)
 	public ResponseEntity<List<Orders>> editOrder(@PathVariable("out_trade_no") String out_trade_no,
-			@RequestParam String status) {
-
-		List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo((long)1,out_trade_no);
-		for (Orders order : orders) {
-			//若支付失败，订单状态为待支付
-			if(status.equals("2")){
-				order.setStatus("0");
-			}else{
-				order.setStatus(status);
-			}
-			order.setPayStatus(status);
-		}
-		orderRepository.save(orders);
-		return new ResponseEntity<List<Orders>>(orders, HttpStatus.OK);
+			@RequestParam String status) throws Exception {
+        return Optional.ofNullable(orderService.editOrderPayStatus(out_trade_no,status))
+                .map(orders -> new ResponseEntity(orders,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find getWaitPayOrderDetail"));
 	}
 	
 	/**
@@ -138,6 +128,22 @@ public class OrderController {
 			@RequestParam String status) throws Exception {
 
         return Optional.ofNullable(orderService.editOrderStatus(orderCode,status))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find getWaitPayOrderDetail"));	
+	}
+	
+	/**
+	 * 删除订单
+	 * 
+	 * @param
+	 * @return
+	 * @throws Exception
+	 */
+	@Transactional
+	@RequestMapping(path = "/delete/{orderCode}", method = RequestMethod.GET)
+	public ResponseEntity<Orders> deleteOrder(@PathVariable("orderCode") String orderCode) throws Exception {
+
+        return Optional.ofNullable(orderService.deleteOrder(orderCode))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getWaitPayOrderDetail"));	
 	}
@@ -171,7 +177,7 @@ public class OrderController {
 	}
 	
 	/**
-	 * 退单列表
+	 * 待支付订单列表
 	 * @param reqRefundOrder
 	 * @return
 	 * @throws Exception

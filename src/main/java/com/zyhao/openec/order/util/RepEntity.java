@@ -12,6 +12,10 @@ public class RepEntity {
 	
 	private Object data;
 	
+	private Long totalPages;
+	
+	private Long totalElements;
+	
 	public RepEntity() {
 		super();
 	}
@@ -45,6 +49,24 @@ public class RepEntity {
 	public void setData(Object data) {
 		this.data = data;
 	}
+
+	public Long getTotalPages() {
+		return totalPages;
+	}
+
+	public void setTotalPages(Long totalPages) {
+		this.totalPages = totalPages;
+	}
+
+	public Long getTotalElements() {
+		return totalElements;
+	}
+
+	public void setTotalElements(Long totalElements) {
+		this.totalElements = totalElements;
+	}
+
+
 	
 	
 	
