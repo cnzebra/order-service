@@ -315,7 +315,7 @@ public class OrderService {
 			User user = getAuthenticatedUser();
 			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(),orderCode);
 			
-			if(order.getStatus().equals("100") || order == null){
+			if(order == null || order.getStatus().equals("100")){
 				resp.setStatus("-1");
 				resp.setMsg("该订单不存在或已被删除");
 				
@@ -392,7 +392,7 @@ public class OrderService {
 			User user = getAuthenticatedUser();
 			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(),orderCode);
 			
-			if(order.getStatus().equals("100") || order == null){
+			if(order == null || order.getStatus().equals("100")){
 				resp.setStatus("-1");
 				resp.setMsg("该订单不存在或已被删除");
 				
