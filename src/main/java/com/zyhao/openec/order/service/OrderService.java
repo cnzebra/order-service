@@ -246,12 +246,12 @@ public class OrderService {
 			RepEntity  waitPayInfoArysResp = restTemplate.getForObject("http://payment-service/v1/getPayInfo/noPayment?page="+page+"&size="+size,RepEntity.class);
 					
 			List<LinkedHashMap> waitPayInfoList = (List<LinkedHashMap>) waitPayInfoArysResp.getData();
-
-			List<List<Orders>> orderList = waitPayInfoList.stream().map(payInfoMap -> getWaitPayOrderByOutTradeNo(payInfoMap)).collect(Collectors.toList());
+//todo
+//			List<List<Orders>> orderList = waitPayInfoList.stream().map(payInfoMap -> getWaitPayOrderByOutTradeNo(payInfoMap)).collect(Collectors.toList());
 			
 			resp.setStatus("0");
 			resp.setMsg("订单列表查询成功");
-			resp.setData(orderList);
+			resp.setData(waitPayInfoArysResp);
 			resp.setTotalElements(waitPayInfoArysResp.getTotalElements());
 			resp.setTotalPages(waitPayInfoArysResp.getTotalPages());
 			
