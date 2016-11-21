@@ -149,6 +149,20 @@ public class OrderController {
 	}
 	
 	/**
+	 * 待支付订单列表
+	 * @param reqRefundOrder
+	 * @return
+	 * @throws Exception
+	 */
+	@Transactional
+	@RequestMapping(path="/waitPayOrderList",method=RequestMethod.GET)
+	public ResponseEntity<String> getWaitPayOrderList(@Validated @RequestParam int page, @RequestParam int size) throws Exception {
+        return Optional.ofNullable(orderService.getWaitPayOrderList(page, size))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find getWaitPayOrderList"));	
+	}
+	
+	/**
 	 * 申请退单
 	 * @param reqRefundOrder
 	 * @return
@@ -170,24 +184,39 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/refundList",method=RequestMethod.GET)
-	public ResponseEntity<String> getRefundOrderList(@Validated @RequestParam int page, @RequestParam int size) throws Exception {
-        return Optional.ofNullable(orderService.getRefundList(page, size))
+	public ResponseEntity<String> getRefundOrderList(@Validated @RequestParam int page, @RequestParam int size,@RequestParam String type) throws Exception {
+        return Optional.ofNullable(orderService.getRefundList(page, size,type))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getRefundOrderList"));	
 	}
 	
+
 	/**
-	 * 待支付订单列表
+	 * 退单审核
 	 * @param reqRefundOrder
 	 * @return
 	 * @throws Exception
 	 */
 	@Transactional
-	@RequestMapping(path="/waitPayOrderList",method=RequestMethod.GET)
-	public ResponseEntity<String> getWaitPayOrderList(@Validated @RequestParam int page, @RequestParam int size) throws Exception {
-        return Optional.ofNullable(orderService.getWaitPayOrderList(page, size))
+	@RequestMapping(path="/refundVerify/{refundCode}",method=RequestMethod.GET)
+	public ResponseEntity<String> modifyRefundStatus(@Validated @PathVariable("refundCode") String refundCode,@RequestParam String status, @RequestParam String refundOpinion) throws Exception {
+        return Optional.ofNullable(orderService.modifyRefundStatus(refundCode, status, refundOpinion))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
-                .orElseThrow(() -> new Exception("Could not find getWaitPayOrderList"));	
+                .orElseThrow(() -> new Exception("Could not find modifyRefundStatus"));	
+	}
+	
+	/**
+	 * 退单详情
+	 * @param reqRefundOrder
+	 * @return
+	 * @throws Exception 
+	 */
+	@Transactional
+	@RequestMapping(path="/refundDetail/{refundCode}",method=RequestMethod.GET)
+	public ResponseEntity<String> getRefundDetail(@Validated @PathVariable("refundCode") String refundCode) throws Exception {
+        return Optional.ofNullable(orderService.getRefundDetail(refundCode))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find modifyRefundStatus"));	
 	}
 	
 }

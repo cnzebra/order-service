@@ -41,18 +41,12 @@ public class RefundOrders implements Serializable {
 	private String refundOrderCode;
 
 	/** 订单号 . */
-	private Long orderCode;
+	private String orderCode;
 
-	/** 收货人. */
-	private String consignee;
+	/*退单类型--退款(0)/退货(1)*/
+	private String type;
 
-	/** 买家地址. */
-	private String address;
-
-	/** 联系电话. */
-	private String contactTel;
-
-	/** 订单状态. */
+	/** 退单状态. */
 	private String status;
 
 	/** 订单提交时间. */
@@ -78,20 +72,14 @@ public class RefundOrders implements Serializable {
 	/** 商品件数. */
 	private Long goodsCount;
 
-	/** 订单金额(分). */
+	/** 退单金额(分). */
 	private Integer realSellPrice;
 
-	/** 促销信息(JSON). */
-	private String promotion;
-
-	/** 运费(分). */
-	private Long fareFee;
+	/** 物流信息(JSON). */
+	private String logistics;
 
 	/** 商户订单号. */
 	private String outTradeNo;
-
-	/** 支付状态. */
-	private String payStatus;
 
 	/** 退款原因. */
 	private String refundReason;
@@ -163,7 +151,7 @@ public class RefundOrders implements Serializable {
 	 * @param orderCode
 	 *            订单号 
 	 */
-	public void setOrderCode(Long orderCode) {
+	public void setOrderCode(String orderCode) {
 		this.orderCode = orderCode;
 	}
 
@@ -172,65 +160,8 @@ public class RefundOrders implements Serializable {
 	 * 
 	 * @return 订单号 
 	 */
-	public Long getOrderCode() {
+	public String getOrderCode() {
 		return this.orderCode;
-	}
-
-	/**
-	 * Set the 收货人.
-	 * 
-	 * @param consignee
-	 *            收货人
-	 */
-	public void setConsignee(String consignee) {
-		this.consignee = consignee;
-	}
-
-	/**
-	 * Get the 收货人.
-	 * 
-	 * @return 收货人
-	 */
-	public String getConsignee() {
-		return this.consignee;
-	}
-
-	/**
-	 * Set the 买家地址.
-	 * 
-	 * @param address
-	 *            买家地址
-	 */
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	/**
-	 * Get the 买家地址.
-	 * 
-	 * @return 买家地址
-	 */
-	public String getAddress() {
-		return this.address;
-	}
-
-	/**
-	 * Set the 联系电话.
-	 * 
-	 * @param contactTel
-	 *            联系电话
-	 */
-	public void setContactTel(String contactTel) {
-		this.contactTel = contactTel;
-	}
-
-	/**
-	 * Get the 联系电话.
-	 * 
-	 * @return 联系电话
-	 */
-	public String getContactTel() {
-		return this.contactTel;
 	}
 
 	/**
@@ -405,44 +336,6 @@ public class RefundOrders implements Serializable {
 	}
 
 	/**
-	 * Set the 促销信息(JSON).
-	 * 
-	 * @param promotion
-	 *            促销信息(JSON)
-	 */
-	public void setPromotion(String promotion) {
-		this.promotion = promotion;
-	}
-
-	/**
-	 * Get the 促销信息(JSON).
-	 * 
-	 * @return 促销信息(JSON)
-	 */
-	public String getPromotion() {
-		return this.promotion;
-	}
-
-	/**
-	 * Set the 运费(分).
-	 * 
-	 * @param fareFee
-	 *            运费(分)
-	 */
-	public void setFareFee(Long fareFee) {
-		this.fareFee = fareFee;
-	}
-
-	/**
-	 * Get the 运费(分).
-	 * 
-	 * @return 运费(分)
-	 */
-	public Long getFareFee() {
-		return this.fareFee;
-	}
-
-	/**
 	 * Set the 商户订单号.
 	 * 
 	 * @param outTradeNo
@@ -459,25 +352,6 @@ public class RefundOrders implements Serializable {
 	 */
 	public String getOutTradeNo() {
 		return this.outTradeNo;
-	}
-
-	/**
-	 * Set the 支付状态.
-	 * 
-	 * @param payStatus
-	 *            支付状态
-	 */
-	public void setPayStatus(String payStatus) {
-		this.payStatus = payStatus;
-	}
-
-	/**
-	 * Get the 支付状态.
-	 * 
-	 * @return 支付状态
-	 */
-	public String getPayStatus() {
-		return this.payStatus;
 	}
 
 	/**
@@ -554,15 +428,30 @@ public class RefundOrders implements Serializable {
 		return true;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getLogistics() {
+		return logistics;
+	}
+
+	public void setLogistics(String logistics) {
+		this.logistics = logistics;
+	}
+
 	@Override
 	public String toString() {
 		return "RefundOrders [id=" + id + ", refundOrderCode=" + refundOrderCode + ", orderCode=" + orderCode
-				+ ", consignee=" + consignee + ", address=" + address + ", contactTel=" + contactTel + ", status="
-				+ status + ", createAt=" + createAt + ", modifyAt=" + modifyAt + ", sellerName=" + sellerName
-				+ ", sellerId=" + sellerId + ", channelId=" + channelId + ", memberId=" + memberId + ", goodsCount="
-				+ goodsCount + ", realSellPrice=" + realSellPrice + ", promotion=" + promotion + ", fareFee=" + fareFee
-				+ ", outTradeNo=" + outTradeNo + ", payStatus=" + payStatus + ", refundReason=" + refundReason
-				+ ", refundOpinion=" + refundOpinion + ", refundOrderItems=" + refundOrderItems + "]";
+				+ ", type=" + type + ", status=" + status + ", createAt=" + createAt + ", modifyAt=" + modifyAt
+				+ ", sellerName=" + sellerName + ", sellerId=" + sellerId + ", channelId=" + channelId + ", memberId="
+				+ memberId + ", goodsCount=" + goodsCount + ", realSellPrice=" + realSellPrice + ", logistics="
+				+ logistics + ", outTradeNo=" + outTradeNo + ", refundReason=" + refundReason + ", refundOpinion="
+				+ refundOpinion + ", refundOrderItems=" + refundOrderItems + "]";
 	}
 
 }

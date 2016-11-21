@@ -8,6 +8,9 @@ import com.zyhao.openec.order.entity.RefundOrders;
 
 public interface RefundOrderRepository extends PagingAndSortingRepository<RefundOrders, Long>{
 	
-	Page<RefundOrders> findByMemberId(Long memberId,Pageable p);
+	public Page<RefundOrders> findByMemberIdAndType(Long memberId,String type,Pageable p);
+	
+	public RefundOrders findByMemberIdAndRefundOrderCode(Long memberId,String refundOrderCode);
+	
 	
 }

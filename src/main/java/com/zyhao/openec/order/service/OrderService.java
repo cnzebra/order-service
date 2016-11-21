@@ -1,7 +1,7 @@
 package com.zyhao.openec.order.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,17 +16,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zyhao.openec.order.entity.Inventory;
 import com.zyhao.openec.order.entity.Orders;
-import com.zyhao.openec.order.entity.PayInfo;
+import com.zyhao.openec.order.entity.RefundOrderItem;
 import com.zyhao.openec.order.entity.RefundOrders;
 import com.zyhao.openec.order.entity.User;
 import com.zyhao.openec.order.pojo.BigOrder;
@@ -166,36 +164,180 @@ public class OrderService {
 	 * @param refundOrders
 	 * @return
 	 */
-	public RefundOrders createRefundOrder(RefundOrders refundOrders) {
-		// TODO Auto-generated method stub
-		User user = getAuthenticatedUser();
+	public RepEntity createRefundOrder(RefundOrders refundOrders) {
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			
+			Long currTime = System.currentTimeMillis();
+			
+			/** 退单号. */
+			refundOrders.setRefundOrderCode(""+currTime);
+			
+			/** 订单提交时间. */
+			refundOrders.setCreateAt(currTime);
+			
+			/** 用户id. */
+			refundOrders.setMemberId(user.getId());
+			
+			/** 最后变更时间. */
+			refundOrders.setModifyAt(currTime);
+
+			/** 退单状态. */
+			refundOrders.setStatus("0");
+			
+			/** 商户订单号(通过原订单号查询回来). */
+			Orders reOrder = orderRepository.findByMemberIdAndOrderCode(user.getId(), refundOrders.getOrderCode());
+			if(reOrder == null){
+				resp.setStatus("-1");
+				resp.setMsg("原订单查询失败,请检查订单号");
+				return resp;
+			}
+			refundOrders.setOutTradeNo(reOrder.getOutTradeNo()); 
+			
+			/** 退单金额(分)(通过SKU获取商品金额). */
+			
+			List<RefundOrderItem> refundOrderItems = refundOrders.getRefundOrderItems();
+			
+			List<String> skus = refundOrderItems.stream().map(refundOrderItem -> refundOrderItem.getSku()).collect(Collectors.toList());
+			
+			
+			
+			Inventory[] inventorys = getInventoryBySKUS(new ArrayList(Arrays.asList(skus.toArray())));
+			
+			//设置价格
+			int realSellPrice = 0;
+			for (Inventory _inventory : inventorys) {
+				for(RefundOrderItem refundOrderItem:refundOrderItems){
+					if(_inventory.getSku().equals(refundOrderItem.getSku())){
+						//设置价格
+						refundOrderItem.setPrice(_inventory.getPrice());
+						
+						//设置图片
+						refundOrderItem.setProductPic(_inventory.getPictures());
+						
+						//设置规格
+						refundOrderItem.setSpecifications(_inventory.getSpecs());
+						
+						//设置退货价格
+						realSellPrice += _inventory.getPrice()*refundOrderItem.getGoodsCount();
+					}
+				}
+			}
+			
+			//设置退款总价
+			refundOrders.setRealSellPrice(realSellPrice);
+			
+			resp.setStatus("0");
+			resp.setMsg("退单申请成功");
+			resp.setData(refundOrderRepository.save(refundOrders));
+			
+			return resp;
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setStatus("-1");
+			resp.setMsg("退单申请失败");
+			return resp;
+		}
+
+	}
+	
+	/**
+	 * 通过SKU数组获取库存集合
+	 */
+	public Inventory[] getInventoryBySKUS(ArrayList<String> reqAry) throws Exception{
 		
-		Long currTime = System.currentTimeMillis();
+		HttpHeaders headers = new HttpHeaders();
+		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+		headers.setContentType(type);				
+		HttpEntity<List<String>> formEntity = new HttpEntity<List<String>>(reqAry, headers);		
+		Inventory[] inventoryAry = oAuth2RestTemplate.postForObject("http://inventory-service/v1/batch",formEntity, Inventory[].class);
 		
-		refundOrders.setRefundOrderCode(""+currTime);
-		
-		refundOrders.setCreateAt(currTime);
-		
-		refundOrders.setMemberId(user.getId());
-		
-		return refundOrderRepository.save(refundOrders);
-		
+		return inventoryAry;
 	}
 	
 	/**
 	 * 退单列表
-	 * @param refundOrders
+	 * @param 
 	 * @return
 	 */
-	public Page<RefundOrders> getRefundList(int page,int size) {
-		
-		User user = getAuthenticatedUser();
-		Pageable pageable = new PageRequest(page, size);
-		Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberId(user.getId(),pageable);
-		return refundOrderList;
+	public RepEntity getRefundList(int page,int size,String type) {
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			Pageable pageable = new PageRequest(page, size);
+			Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberIdAndType(user.getId(),type,pageable);
+			resp.setData(refundOrderList);
+			resp.setMsg("退单列表获取成功");
+			resp.setStatus("0");
+			return resp;
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setMsg("退单列表获取失败");
+			resp.setStatus("-1");
+			return resp;
+		}
 
 	}
 
+	/**
+	 * 退单详情
+	 * @param 
+	 * @return
+	 */
+	public RepEntity getRefundDetail(String refundCode){
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+		
+			RefundOrders refundOrder =  refundOrderRepository.findByMemberIdAndRefundOrderCode(user.getId(),refundCode);
+		
+			resp.setData(refundOrder);
+			resp.setMsg("退单详情获取成功");
+			resp.setStatus("0");
+			return resp;
+		
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setMsg("退单详情获取失败");
+			resp.setStatus("-1");
+			return resp;
+		}
+	}
+	
+	/**
+	 * 退单审核
+	 * @param 
+	 * @return
+	 */
+	public RepEntity modifyRefundStatus(String refundCode,String status,String refundOpinion){
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			
+			RefundOrders refundOrder =  refundOrderRepository.findByMemberIdAndRefundOrderCode(user.getId(),refundCode);
+			
+			refundOrder.setStatus(status);
+			
+			refundOrder.setRefundOpinion(refundOpinion);
+			
+			RefundOrders _refundOrder = refundOrderRepository.save(refundOrder);
+			
+			resp.setData(_refundOrder);
+			resp.setMsg("退单审核成功");
+			resp.setStatus("0");
+			return resp;	
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setMsg("退单审核失败");
+			resp.setStatus("-1");
+			return resp;	
+		}
+
+	}
+	
 	/**
 	 * 订单列表(按状态,排除删除态和待支付态)
 	 * @param page
@@ -434,9 +576,8 @@ public class OrderService {
 			}
 			order.setPayStatus(status);
 		}
-		orderRepository.save(orders);
 
-		return orders;
+		return orderRepository.save(orders);
 	}
 	
 
