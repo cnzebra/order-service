@@ -9,6 +9,8 @@ spring:
     username: root
     password: 3g2win.com
     initialize: true
+  zipkin:
+    base-url: http://zipkin.openec.zyhao.com:9411/
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     show-sql: true

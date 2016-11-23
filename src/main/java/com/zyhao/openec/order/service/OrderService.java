@@ -3,6 +3,7 @@ package com.zyhao.openec.order.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -380,22 +381,25 @@ public class OrderService {
 	 * @param size
 	 * @return
 	 */
-	public RepEntity getWaitPayOrderList(int page, int size) {
+	public RepEntity getWaitPayOrderList(String outTradeNos) {
 		RepEntity resp = new RepEntity();
-		page = page -1;
+
 		try{
 			//当前用户待支付列表
-			RepEntity  waitPayInfoArysResp = restTemplate.getForObject("http://payment-service/v1/getPayInfo/noPayment?page="+page+"&size="+size,RepEntity.class);
-					
-			List<LinkedHashMap> waitPayInfoList = (List<LinkedHashMap>) waitPayInfoArysResp.getData();
-//todo
-//			List<List<Orders>> orderList = waitPayInfoList.stream().map(payInfoMap -> getWaitPayOrderByOutTradeNo(payInfoMap)).collect(Collectors.toList());
+			String[] _outTradeNos = outTradeNos.split(",");
+
+			List<List<Orders>> orderList = new LinkedList<List<Orders>>();
 			
+			for (String outTradeNo : _outTradeNos) {
+				orderList.add(getWaitPayOrderByOutTradeNo(outTradeNo));
+			}
+			
+//			List<List<Orders>> orderList = waitPayInfoList.stream().map(payInfoMap -> getWaitPayOrderByOutTradeNo(payInfoMap)).collect(Collectors.toList());
+//			
 			resp.setStatus("0");
 			resp.setMsg("订单列表查询成功");
-			resp.setData(waitPayInfoArysResp);
-			resp.setTotalElements(waitPayInfoArysResp.getTotalElements());
-			resp.setTotalPages(waitPayInfoArysResp.getTotalPages());
+			resp.setData(orderList);
+
 			
 			return resp;
 		}catch(Exception e){
@@ -408,10 +412,10 @@ public class OrderService {
 		
 	}
 	
-	public List<Orders> getWaitPayOrderByOutTradeNo(LinkedHashMap<String, Object> payInfoMap){
+	public List<Orders> getWaitPayOrderByOutTradeNo(String outTradeNo){
 		try{	
 		User user = getAuthenticatedUser();
-		return orderRepository.findByMemberIdAndOutTradeNo(user.getId(),""+payInfoMap.get("outTradeNo"));
+		return orderRepository.findByMemberIdAndOutTradeNo(user.getId(),outTradeNo);
 		}catch(Exception e){
 			e.printStackTrace();
 			return null;
@@ -578,6 +582,25 @@ public class OrderService {
 		}
 
 		return orderRepository.save(orders);
+	}
+
+	public RepEntity getRefundListByStatus(int page, int size, String type, String status) {
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			Pageable pageable = new PageRequest(page, size);
+			Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberIdAndTypeAndStatus(user.getId(),status,type,pageable);
+			resp.setData(refundOrderList);
+			resp.setMsg("退单列表获取成功");
+			resp.setStatus("0");
+			return resp;
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setMsg("退单列表获取失败");
+			resp.setStatus("-1");
+			return resp;
+		}
 	}
 	
 

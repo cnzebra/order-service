@@ -10,6 +10,8 @@ public interface RefundOrderRepository extends PagingAndSortingRepository<Refund
 	
 	public Page<RefundOrders> findByMemberIdAndType(Long memberId,String type,Pageable p);
 	
+	public Page<RefundOrders> findByMemberIdAndTypeAndStatus(Long memberId,String type,String status,Pageable p);
+	
 	public RefundOrders findByMemberIdAndRefundOrderCode(Long memberId,String refundOrderCode);
 	
 	
