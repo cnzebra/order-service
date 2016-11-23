@@ -141,7 +141,8 @@ public class OrderService {
 			
 			tempOrder.setOutTradeNo(tradeOutNo);
 			tempOrder.setPayStatus("0"); 
-
+			tempOrder.setIsRemind("0");
+			
 			log.info("tempOrder----------->"+tempOrder.toString());
 			
 			orderRepository.save(tempOrder);
@@ -601,6 +602,30 @@ public class OrderService {
 			resp.setStatus("-1");
 			return resp;
 		}
+	}
+
+	public RepEntity setIsRemind(String orderCode) {
+		RepEntity resp = new RepEntity();
+		try{
+			User user = getAuthenticatedUser();
+			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(), orderCode);
+			order.setIsRemind("1");
+			orderRepository.save(order);
+			
+			resp.setStatus("0");
+			resp.setMsg("订单状态修改成功");
+			resp.setData(order);
+			
+			return resp;
+			
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			resp.setStatus("-1");
+			resp.setMsg("订单状态修改失败");
+			return resp;
+		}
+
 	}
 	
 

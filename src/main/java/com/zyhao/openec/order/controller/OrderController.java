@@ -232,4 +232,18 @@ public class OrderController {
                 .orElseThrow(() -> new Exception("Could not find modifyRefundStatus"));	
 	}
 	
+	/**
+	 * 提醒发货
+	 * @param refundCode
+	 * @return
+	 * @throws Exception 
+	 */
+	@Transactional
+	@RequestMapping(path="/remind/{orderCode}",method=RequestMethod.GET)
+	public ResponseEntity<String> setIsRemind(@Validated @PathVariable("orderCode") String orderCode) throws Exception {
+        return Optional.ofNullable(orderService.setIsRemind(orderCode))
+                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
+                .orElseThrow(() -> new Exception("Could not find modifyRefundStatus"));	
+	}	
+	
 }

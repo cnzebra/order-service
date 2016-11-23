@@ -96,6 +96,8 @@ public class Orders implements Serializable {
 
 	/** 支付状态. */
 	private String payStatus;
+	
+	private String isRemind;
 
 	/** 订单商品List*/
 	@NotNull
@@ -559,6 +561,14 @@ public class Orders implements Serializable {
 		return true;
 	}
 
+	public String getIsRemind() {
+		return isRemind;
+	}
+
+	public void setIsRemind(String isRemind) {
+		this.isRemind = isRemind;
+	}
+
 	@Override
 	public String toString() {
 		return "Orders [id=" + id + ", orderCode=" + orderCode + ", consignee=" + consignee + ", address=" + address
@@ -567,11 +577,7 @@ public class Orders implements Serializable {
 				+ ", memberId=" + memberId + ", goodsCount=" + goodsCount + ", realSellPrice=" + realSellPrice
 				+ ", invoiceHeader=" + invoiceHeader + ", invoiceContent=" + invoiceContent + ", promotion=" + promotion
 				+ ", logistics=" + logistics + ", fareFee=" + fareFee + ", outTradeNo=" + outTradeNo + ", payStatus="
-				+ payStatus + ", orderItems=" + orderItems + "]";
+				+ payStatus + ", isRemind=" + isRemind + ", orderItems=" + orderItems + "]";
 	}
-
-
-
-
 
 }
