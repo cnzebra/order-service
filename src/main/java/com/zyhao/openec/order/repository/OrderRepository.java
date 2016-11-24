@@ -70,5 +70,14 @@ public interface OrderRepository extends PagingAndSortingRepository<Orders, Long
 	 */
 	public List<Orders> findByOutTradeNoIn(List<String> outTradeNos);
 	
+	/**
+	 * 排除某状态查询订单列表
+	 * @param memberId
+	 * @param status
+	 * @param pageable
+	 * @return
+	 */
+	public Page<Orders> findByMemberIdAndStatusNotIn(Long memberId,List<String> status, Pageable pageable);
+	
 }
 

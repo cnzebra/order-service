@@ -350,6 +350,23 @@ public class OrderService {
 		page = page - 1;
 		RepEntity resp = new RepEntity();
 		try{
+			User user = getAuthenticatedUser();
+			Pageable pageable = new PageRequest(page, size);
+			if(status.equals("all") || status.equals("ALL")){
+				
+				List<String> statusNot = new ArrayList();
+				
+				statusNot.add("100");
+				statusNot.add("0");
+				
+				Page<Orders> orderList = orderRepository.findByMemberIdAndStatusNotIn(user.getId(),statusNot,pageable);
+				
+				resp.setMsg("订单列表查询成功");
+				resp.setStatus("0");
+				resp.setData(orderList);
+				
+				return resp;
+			}
 			
 			if(status.equals("0") || status.equals("100")){
 				
@@ -359,8 +376,7 @@ public class OrderService {
 				return resp;
 			}
 			
-			User user = getAuthenticatedUser();
-			Pageable pageable = new PageRequest(page, size);
+
 			Page<Orders> orderList = orderRepository.findByMemberIdAndStatus(user.getId(),status,pageable);
 			
 			resp.setMsg("订单列表查询成功");
