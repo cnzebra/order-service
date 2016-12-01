@@ -97,8 +97,13 @@ public class Orders implements Serializable {
 	/** 支付状态. */
 	private String payStatus;
 	
+	/** 是否提醒发货. */
 	private String isRemind;
-
+	
+	/** 是否出账单. */
+	private String isBilled;
+	
+	
 	/** 订单商品List*/
 	@NotNull
     // cascade表示级联操作  
@@ -569,6 +574,14 @@ public class Orders implements Serializable {
 		this.isRemind = isRemind;
 	}
 
+	public String getIsBilled() {
+		return isBilled;
+	}
+
+	public void setIsBilled(String isBilled) {
+		this.isBilled = isBilled;
+	}
+
 	@Override
 	public String toString() {
 		return "Orders [id=" + id + ", orderCode=" + orderCode + ", consignee=" + consignee + ", address=" + address
@@ -577,7 +590,9 @@ public class Orders implements Serializable {
 				+ ", memberId=" + memberId + ", goodsCount=" + goodsCount + ", realSellPrice=" + realSellPrice
 				+ ", invoiceHeader=" + invoiceHeader + ", invoiceContent=" + invoiceContent + ", promotion=" + promotion
 				+ ", logistics=" + logistics + ", fareFee=" + fareFee + ", outTradeNo=" + outTradeNo + ", payStatus="
-				+ payStatus + ", isRemind=" + isRemind + ", orderItems=" + orderItems + "]";
+				+ payStatus + ", isRemind=" + isRemind + ", isBilled=" + isBilled + ", orderItems=" + orderItems + "]";
 	}
+
+
 
 }

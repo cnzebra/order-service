@@ -87,6 +87,9 @@ public class RefundOrders implements Serializable {
 	/** 审核意见. */
 	private String refundOpinion;
 
+	/** 是否出账单. */
+	private String isBilled;
+	
 	@NotNull
 	@OneToMany(cascade = { CascadeType.PERSIST, CascadeType.REFRESH,  
             CascadeType.REMOVE }, fetch = FetchType.LAZY)
@@ -444,6 +447,14 @@ public class RefundOrders implements Serializable {
 		this.logistics = logistics;
 	}
 
+	public String getIsBilled() {
+		return isBilled;
+	}
+
+	public void setIsBilled(String isBilled) {
+		this.isBilled = isBilled;
+	}
+
 	@Override
 	public String toString() {
 		return "RefundOrders [id=" + id + ", refundOrderCode=" + refundOrderCode + ", orderCode=" + orderCode
@@ -451,7 +462,9 @@ public class RefundOrders implements Serializable {
 				+ ", sellerName=" + sellerName + ", sellerId=" + sellerId + ", channelId=" + channelId + ", memberId="
 				+ memberId + ", goodsCount=" + goodsCount + ", realSellPrice=" + realSellPrice + ", logistics="
 				+ logistics + ", outTradeNo=" + outTradeNo + ", refundReason=" + refundReason + ", refundOpinion="
-				+ refundOpinion + ", refundOrderItems=" + refundOrderItems + "]";
+				+ refundOpinion + ", isBilled=" + isBilled + ", refundOrderItems=" + refundOrderItems + "]";
 	}
+
+
 
 }

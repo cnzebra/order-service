@@ -143,6 +143,8 @@ public class OrderService {
 			tempOrder.setPayStatus("0"); 
 			tempOrder.setIsRemind("0");
 			
+			tempOrder.setIsBilled("F");
+			
 			log.info("tempOrder----------->"+tempOrder.toString());
 			
 			orderRepository.save(tempOrder);
@@ -187,6 +189,9 @@ public class OrderService {
 
 			/** 退单状态. */
 			refundOrders.setStatus("0");
+			
+			/** 是否对账. */
+			refundOrders.setIsBilled("F");
 			
 			/** 商户订单号(通过原订单号查询回来). */
 			Orders reOrder = orderRepository.findByMemberIdAndOrderCode(user.getId(), refundOrders.getOrderCode());
@@ -598,6 +603,15 @@ public class OrderService {
 			order.setPayStatus(status);
 		}
 
+		//[{"sku":"120161121135401001-0000","amount":"600"}]
+//		HttpHeaders headers = new HttpHeaders();
+//		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+//		headers.setContentType(type);				
+//		HttpEntity<List<String>> formEntity = new HttpEntity<List<String>>(reqAry, headers);
+		//restTemplate.postForObject("http://inventory-service/nologin/minusInventory",formEntity, Inventory[].class)
+		
+
+		
 		return orderRepository.save(orders);
 	}
 
