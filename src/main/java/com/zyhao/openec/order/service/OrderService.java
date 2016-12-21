@@ -2,7 +2,6 @@ package com.zyhao.openec.order.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,15 +23,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.zyhao.openec.order.entity.Inventory;
+import com.zyhao.openec.order.entity.OrderItem;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.entity.RefundOrderItem;
 import com.zyhao.openec.order.entity.RefundOrders;
 import com.zyhao.openec.order.entity.User;
 import com.zyhao.openec.order.pojo.BigOrder;
-import com.zyhao.openec.order.pojo.SellerOrder;
+import com.zyhao.openec.order.repository.OrderItemRepository;
 import com.zyhao.openec.order.repository.OrderRepository;
 import com.zyhao.openec.order.repository.RefundOrderRepository;
 import com.zyhao.openec.order.util.RepEntity;
+import com.zyhao.openec.util.UniqueCodeComponent;
 
 /**
  * 
@@ -57,6 +58,10 @@ public class OrderService {
 	private OrderRepository orderRepository;
 	@Autowired
 	private RefundOrderRepository refundOrderRepository;
+	@Autowired
+	private OrderItemRepository orderItemRepository;
+	@Autowired
+	private UniqueCodeComponent uniqueCodeComponent;
 	
 	/**
 	 * 认证平台
@@ -99,68 +104,24 @@ public class OrderService {
 	 * @throws Exception 
 	 */
 	@Transactional
-	public BigOrder createOrder(BigOrder bigOrder) throws Exception{		
-		String tradeOutNo = getTradeOutNo(bigOrder.getChannelId());
-		
-		String address = bigOrder.getAddress();
-		String consignee = bigOrder.getConsignee();
-		String contactTel = bigOrder.getContactTel();
-		String invoiceContent = bigOrder.getInvoiceContent();
-		String invoiceHeader = bigOrder.getInvoiceHeader();
-		
-		for(SellerOrder sellerOrder : bigOrder.getSellerOrders()){
-			Orders tempOrder = new Orders();
-			Long currTime = System.currentTimeMillis();
-			//订单号生成算法待完善
-			
-			tempOrder.setOrderCode(""+currTime);
-			
-			tempOrder.setCreatedAt(currTime);
-
-			tempOrder.setStatus("0");
-			
-			tempOrder.setMemberId(getAuthenticatedUser().getId());
-			
-			tempOrder.setRealSellPrice(sellerOrder.getRealSellPrice());
-			
-			tempOrder.setGoodsCount(sellerOrder.getGoodsCount());
-			
-			tempOrder.setSellerId(sellerOrder.getSellerId());
-			
-			tempOrder.setSellerName(sellerOrder.getSellerName());
-				
-			tempOrder.setChannelId(bigOrder.getChannelId());
-			
-			tempOrder.setAddress(address);
-			tempOrder.setConsignee(consignee);
-			tempOrder.setContactTel(contactTel);
-			tempOrder.setInvoiceHeader(invoiceContent);
-			tempOrder.setInvoiceContent(invoiceHeader);	
-			
-			tempOrder.setOrderItems(sellerOrder.getOrderItems());
-			
-			tempOrder.setOutTradeNo(tradeOutNo);
-			tempOrder.setPayStatus("0"); 
-			tempOrder.setIsRemind("0");
-			
-			tempOrder.setIsBilled("F");
-			
-			log.info("tempOrder----------->"+tempOrder.toString());
-			
-			orderRepository.save(tempOrder);
-			
-			
+	public BigOrder createOrder(BigOrder bigOrder,List<Orders>orders,List<OrderItem> orderItems) throws Exception{
+		//保存订单信息
+		if(orders != null){
+	        orderRepository.save(orders);
 		}
-		bigOrder.setTradeOutNo(tradeOutNo);
-		bigOrder.setTotalPrice(bigOrder.getTotalPrice());
-		/**调用支付生成支付信息*/
-		createPayInfo(bigOrder);
-
-
-//		return new ResponseEntity<String>(String.valueOf(order.getId()),HttpStatus.OK);
-		
-		//返回bigOrder
+		//保存订单项信息
+	    if(orderItems != null){
+		    orderItemRepository.save(orderItems);
+	    }
+		//保存支付信息
+	    if(bigOrder != null){
+		    createPayInfo(bigOrder);
+	    }
 		return bigOrder;
+	}
+
+	public String getOrderCode() {
+		return uniqueCodeComponent.getUniqueCode();
 	}
 
 	/**
@@ -253,7 +214,7 @@ public class OrderService {
 	/**
 	 * 通过SKU数组获取库存集合
 	 */
-	public Inventory[] getInventoryBySKUS(ArrayList<String> reqAry) throws Exception{
+	public Inventory[] getInventoryBySKUS(List<String> reqAry) throws Exception{
 		
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -657,6 +618,5 @@ public class OrderService {
 		}
 
 	}
-	
 
 }

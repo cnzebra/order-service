@@ -17,6 +17,9 @@ import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResour
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import com.zyhao.openec.pojo.MachineCode;
 
 /**
  * The {@link AccountApplication} is a cloud-native Spring Boot application that manages
@@ -57,4 +60,10 @@ public class OrderApplication {
     AlwaysSampler alwaysSampler() {
         return new AlwaysSampler();
     }
+    
+    @Bean
+	MachineCode machineCode() {
+		RestTemplate restTemplate=new RestTemplate();
+		return restTemplate.getForObject("http://192.168.1.129:8104/nologin/uniqueCode", MachineCode.class);
+	}
 }

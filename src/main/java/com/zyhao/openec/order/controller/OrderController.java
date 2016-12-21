@@ -1,12 +1,16 @@
 package com.zyhao.openec.order.controller;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +22,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zyhao.openec.order.entity.Inventory;
+import com.zyhao.openec.order.entity.OrderItem;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.entity.RefundOrders;
+import com.zyhao.openec.order.entity.User;
 import com.zyhao.openec.order.pojo.BigOrder;
-import com.zyhao.openec.order.repository.OrderRepository;
+import com.zyhao.openec.order.pojo.SellerOrder;
 import com.zyhao.openec.order.service.OrderService;
 
 /**
@@ -32,9 +39,7 @@ import com.zyhao.openec.order.service.OrderService;
 @RestController
 @RequestMapping(path = "/v1")
 public class OrderController {
-
-	@Autowired
-	private OrderRepository orderRepository;
+    private Log log = LogFactory.getLog(OrderController.class);
 	
 	@Autowired
 	private OrderService orderService;
@@ -46,15 +51,109 @@ public class OrderController {
 	 * @return
 	 * @throws Exception
 	 */
-	@Transactional
 	@RequestMapping(path="/new",method=RequestMethod.POST)
 	public ResponseEntity<String> createOrder(@Validated @RequestBody BigOrder reqOrder) throws Exception {
-        return Optional.ofNullable(orderService.createOrder(reqOrder))
+
+	    log.info("createOrder method run params is "+reqOrder);
+		//判断是否登陆
+		User authenticatedUser = orderService.getAuthenticatedUser();
+		if(authenticatedUser == null || authenticatedUser.getId() == null){
+			return Optional.ofNullable("no login")
+	                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.NOT_FOUND))
+	                .orElseThrow(() -> new Exception("no login"));
+		}
+		
+		Integer totalPrice = 0;//总支付价格
+		//初始化订单信息
+		List<String> inventoryList = new ArrayList<String>();
+		Map<String,OrderItem> mapper = new HashMap<String,OrderItem>();
+		List<SellerOrder> sellerOrders = reqOrder.getSellerOrders();
+		String tradeOutNo = orderService.getTradeOutNo(reqOrder.getChannelId());
+		
+		List<Orders> orders = new ArrayList<Orders>();
+		List<OrderItem> orderitems = new ArrayList<OrderItem>();
+		log.info("createOrder method run tradeOutNo is "+tradeOutNo+ "reqOrder is " +reqOrder);
+		
+		for (SellerOrder sellerOrder : sellerOrders) {
+			inventoryList.clear();
+			Integer orderPrice = 0;
+			//获取订单的编码
+			String orderCode = orderService.getOrderCode();
+			
+			//判断商品库存
+			List<OrderItem> orderItems = sellerOrder.getOrderItems();
+			for (OrderItem orderItem : orderItems) {
+				if(orderItem.getSku() != null){
+					mapper.put(orderItem.getSku(),orderItem);
+					inventoryList.add(orderItem.getSku());
+					orderItem.setOrderCode(orderCode);
+				}else{
+					return Optional.ofNullable("product is null, cannot creater order")
+			                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.NOT_FOUND))
+			                .orElseThrow(() -> new Exception("product is null, cannot creater order"));
+				}
+				orderitems.add(orderItem);
+			}
+			
+			log.info("createOrder method run tradeOutNo is "+tradeOutNo+" 调用库存接口,获取商品库存 reqOrder is " +reqOrder);
+			
+			//调用库存接口,获取商品库存
+			Inventory[] inventoryBySKUS = orderService.getInventoryBySKUS(inventoryList);
+			if(inventoryBySKUS == null){
+				return Optional.ofNullable("query inventory failed, cannot creater order")
+		                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.NOT_FOUND))
+		                .orElseThrow(() -> new Exception("query inventory failed, cannot creater order"));
+			}
+			
+			//查询商品价格和库存校验
+			for(int i=0;i<inventoryBySKUS.length;i++){
+				Inventory inventory = inventoryBySKUS[i];
+				OrderItem orderItem = mapper.get(inventory.getSku());
+				if(orderItem.getGoodsCount() > inventory.getAmount()){//判断库存
+				    return Optional.ofNullable(inventory.getSku()+"Not enough stock, cannot creater order")
+			                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.NOT_FOUND))
+			                .orElseThrow(() -> new Exception(inventory.getSku()+"Not enough stock, cannot creater order"));
+				}else{
+					//计算价格
+					totalPrice = totalPrice + inventory.getPrice();//总售价格
+					orderPrice = orderPrice + inventory.getPrice();//订单价格
+				}
+			}
+			
+			//设置订单支付金额
+			Orders tempOrder = new Orders();
+			//订单号生成算法待完善  订单编码
+			tempOrder.setOrderCode(orderCode);
+			tempOrder.setCreatedAt(new Date().getTime());
+			tempOrder.setStatus("0");
+			tempOrder.setMemberId(authenticatedUser.getId());
+			tempOrder.setRealSellPrice(sellerOrder.getRealSellPrice());
+			tempOrder.setGoodsCount(sellerOrder.getGoodsCount());
+			tempOrder.setSellerId(sellerOrder.getSellerId());
+			tempOrder.setSellerName(sellerOrder.getSellerName());
+			tempOrder.setChannelId(reqOrder.getChannelId());
+			tempOrder.setAddress(reqOrder.getAddress());
+			tempOrder.setConsignee(reqOrder.getConsignee());
+			tempOrder.setContactTel(reqOrder.getContactTel());
+			tempOrder.setInvoiceHeader(reqOrder.getInvoiceHeader());
+			tempOrder.setInvoiceContent(reqOrder.getInvoiceContent());	
+			tempOrder.setOutTradeNo(tradeOutNo);
+			tempOrder.setPayStatus("0"); 
+			tempOrder.setIsRemind("0");
+			tempOrder.setIsBilled("F");
+			
+			orders.add(tempOrder);
+		}
+		reqOrder.setTradeOutNo(tradeOutNo);
+		reqOrder.setTotalPrice(totalPrice);
+		log.info("createOrder method run tradeOutNo is "+tradeOutNo+ "reqOrder is " +reqOrder+" orders = "+orders+" orderitems is "+orderitems);
+        orderService.createOrder(reqOrder, orders, orderitems);
+		mapper.clear();
+		mapper = null;
+		return Optional.ofNullable(reqOrder)
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find createOrder"));
-
 	}
-	
 	
 	/**
 	 * 查询订单列表
@@ -244,6 +343,6 @@ public class OrderController {
         return Optional.ofNullable(orderService.setIsRemind(orderCode))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find modifyRefundStatus"));	
-	}	
+	}
 	
 }

@@ -29,8 +29,6 @@ public class OrderItem implements Serializable {
 	@GeneratedValue(strategy=GenerationType.AUTO)	
 	private Long id;
 
-
-
 	/** 商品数量. */
 	private Integer goodsCount;
 
@@ -49,7 +47,6 @@ public class OrderItem implements Serializable {
 
 	/** 规格(JSON). */
 	private String specifications;
-	
 	
 	private String orderCode;
 	

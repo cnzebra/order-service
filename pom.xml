@@ -74,6 +74,12 @@
         	<artifactId>json</artifactId>
         </dependency>
         
+         <dependency>
+        	<groupId>com.zyhao</groupId>
+        	<artifactId>utils</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+         </dependency>
+        
     </dependencies>
 
     <build>

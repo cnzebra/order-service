@@ -15,7 +15,7 @@ import com.zyhao.openec.order.entity.Orders;
  * @author zgy_c
  *
  */
-public interface OrderRepository extends PagingAndSortingRepository<Orders, Long> {
+public interface OrderRepository extends PagingAndSortingRepository<Orders, String> {
 	
 	
 	/**

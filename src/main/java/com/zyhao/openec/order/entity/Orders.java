@@ -1,21 +1,12 @@
 package com.zyhao.openec.order.entity;
 
 import java.io.Serializable;
-
 import java.util.List;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
-
-import org.springframework.data.annotation.LastModifiedDate;
+import javax.persistence.Transient;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 /**
  * Model class of 订单表.
  * 
@@ -28,14 +19,8 @@ public class Orders implements Serializable {
 	/** serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
-	/** id. */
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
-
-
 	/** 订单号 . */
-//	@NotNull
+	@Id
 	private String orderCode;
 
 	/** 收货人. */
@@ -103,19 +88,7 @@ public class Orders implements Serializable {
 	/** 是否出账单. */
 	private String isBilled;
 	
-	
-	/** 订单商品List*/
-	@NotNull
-    // cascade表示级联操作  
-    // CascadeType.MERGE级联更新：若items属性修改了那么order对象保存时同时修改items里的对象。对应EntityManager的merge方法  
-    // CascadeType.PERSIST级联刷新：获取order对象里也同时也重新获取最新的items时的对象。对应EntityManager的refresh(object)方法有效。即会重新查询数据库里的最新数据  
-    // CascadeType.REFRESH级联保存：对order对象保存时也对items里的对象也会保存。对应EntityManager的presist方法  
-    // CascadeType.REMOVE级联删除：对order对象删除也对items里的对象也会删除。对应EntityManager的remove方法  
-    // FetchType.LAZY表示懒加载。对于xxxtoMany时即获得多的一方fetch的默认值是FetchType.LAZY懒加载。对于xxxtoOne时即获得一的一方fetch的默认值是FetchType.EAGER立即加载  
-    // mappedBy表示关系统被维护端，它的值是关系维护端维护关系的属性   mappedBy = "orderId"
-	@OneToMany(cascade = { CascadeType.PERSIST, CascadeType.REFRESH,  
-            CascadeType.REMOVE }, fetch = FetchType.LAZY)
-	@JoinColumn(name="orderCode",referencedColumnName ="orderCode")
+	@Transient
 	private List<OrderItem> orderItems;
 
 	/**
@@ -123,27 +96,6 @@ public class Orders implements Serializable {
 	 */
 	public Orders() {
 	}
-
-	/**
-	 * Set the id.
-	 * 
-	 * @param id
-	 *            id
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	/**
-	 * Get the id.
-	 * 
-	 * @return id
-	 */
-	public Long getId() {
-		return this.id;
-	}
-
-
 
 	public String getOrderCode() {
 		return orderCode;
@@ -522,48 +474,12 @@ public class Orders implements Serializable {
 		return this.payStatus;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
 	public List<OrderItem> getOrderItems() {
 		return orderItems;
 	}
 
 	public void setOrderItems(List<OrderItem> orderItems) {
 		this.orderItems = orderItems;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Orders other = (Orders) obj;
-		if (id == null) {
-			if (other.id != null) {
-				return false;
-			}
-		} else if (!id.equals(other.id)) {
-			return false;
-		}
-		return true;
 	}
 
 	public String getIsRemind() {
@@ -584,7 +500,7 @@ public class Orders implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Orders [id=" + id + ", orderCode=" + orderCode + ", consignee=" + consignee + ", address=" + address
+		return "Orders [orderCode=" + orderCode + ", consignee=" + consignee + ", address=" + address
 				+ ", contactTel=" + contactTel + ", status=" + status + ", createdAt=" + createdAt + ", modifyAt="
 				+ modifyAt + ", sellerName=" + sellerName + ", sellerId=" + sellerId + ", channelId=" + channelId
 				+ ", memberId=" + memberId + ", goodsCount=" + goodsCount + ", realSellPrice=" + realSellPrice
