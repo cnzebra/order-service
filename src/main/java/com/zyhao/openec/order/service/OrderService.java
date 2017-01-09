@@ -33,7 +33,8 @@ import com.zyhao.openec.order.repository.OrderItemRepository;
 import com.zyhao.openec.order.repository.OrderRepository;
 import com.zyhao.openec.order.repository.RefundOrderRepository;
 import com.zyhao.openec.order.util.RepEntity;
-import com.zyhao.openec.util.UniqueCodeComponent;
+import com.zyhao.openec.pojo.MachineCode;
+import com.zyhao.openec.util.UniqueCodeUtil;
 
 /**
  * 
@@ -61,8 +62,9 @@ public class OrderService {
 	@Autowired
 	private OrderItemRepository orderItemRepository;
 	@Autowired
-	private UniqueCodeComponent uniqueCodeComponent;
-	
+	private UniqueCodeUtil uniqueCodeUtil;
+	@Autowired
+	private MachineCode machineCode;
 	/**
 	 * 认证平台
 	 * @return
@@ -121,7 +123,7 @@ public class OrderService {
 	}
 
 	public String getOrderCode() {
-		return uniqueCodeComponent.getUniqueCode();
+		return uniqueCodeUtil.getUniqueCode(machineCode);
 	}
 
 	/**
@@ -551,17 +553,13 @@ public class OrderService {
 	 * @param status
 	 * @return
 	 */
-	public Object editOrderPayStatus(String out_trade_no, String status) {
+	public Object editOrderPayStatus(String out_trade_no, String status,String orderstatus) {
 		User user = getAuthenticatedUser();
 		List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(user.getId(),out_trade_no);
 		for (Orders order : orders) {
 			//若支付失败，订单状态为待支付
-			if(status.equals("2")){
-				order.setStatus("0");
-			}else{
-				order.setStatus(status);
-			}
 			order.setPayStatus(status);
+			order.setPayStatus(orderstatus);
 		}
 
 		//[{"sku":"120161121135401001-0000","amount":"600"}]
