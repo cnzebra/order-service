@@ -50,8 +50,10 @@ public class OrderNologinController {
 	 */
 	@Transactional
 	@RequestMapping(path = "/edit/{out_trade_no}", method = RequestMethod.GET)
-	public ResponseEntity<List<Orders>> editOrder(@PathVariable("out_trade_no") String out_trade_no,
-			@RequestParam String status,@RequestParam String orderstatus) throws Exception {
+	public ResponseEntity<List<Orders>> editOrder(
+			@PathVariable("out_trade_no") String out_trade_no,
+			@RequestParam String status,
+			@RequestParam String orderstatus) throws Exception {
         return Optional.ofNullable(orderService.editOrderPayStatus(out_trade_no,status,orderstatus))
                 .map(orders -> new ResponseEntity(orders,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getWaitPayOrderDetail"));
