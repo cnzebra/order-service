@@ -2,10 +2,10 @@ package com.zyhao.openec.order.entity;
 import java.io.Serializable;
 import java.sql.Blob;
 import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
 
 /**
  * Model class of 支付表.
@@ -19,14 +19,10 @@ public class PayInfo implements Serializable {
 
 	/** serialVersionUID. */
 	private static final long serialVersionUID = 1L;
-
+	
 	/** 主键. */
 	@Id
-	@GeneratedValue
-	private Long id;
-
 	/** 商户订单号. */
-	@NotNull
 	private String outTradeNo;
 
 	/** 订单总金额(分). */
@@ -155,24 +151,7 @@ public class PayInfo implements Serializable {
 	public PayInfo() {
 	}
 
-	/**
-	 * Set the 主键.
-	 * 
-	 * @param id
-	 *            主键
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	/**
-	 * Get the 主键.
-	 * 
-	 * @return 主键
-	 */
-	public Long getId() {
-		return this.id;
-	}
+	
 
 	/**
 	 * Set the 商户订单号.
@@ -955,7 +934,7 @@ public class PayInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return "PayInfo [id=" + id + ", outTradeNo=" + outTradeNo + ", totalPrice=" + totalPrice + ", totalFare="
+		return "PayInfo [ outTradeNo=" + outTradeNo + ", totalPrice=" + totalPrice + ", totalFare="
 				+ totalFare + ", payPrice=" + payPrice + ", totalPoints=" + totalPoints + ", commitTime=" + commitTime
 				+ ", userId=" + userId + ", channelId=" + channelId + ", contentMd5=" + contentMd5 + ", payWay="
 				+ payWay + ", payType=" + payType + ", payStatus=" + payStatus + ", returnCode=" + returnCode

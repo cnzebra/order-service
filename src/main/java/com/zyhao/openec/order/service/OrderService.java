@@ -32,8 +32,8 @@ import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.repository.OrderItemRepository;
 import com.zyhao.openec.order.repository.OrderRepository;
 import com.zyhao.openec.order.repository.RefundOrderRepository;
-import com.zyhao.openec.order.util.RepEntity;
 import com.zyhao.openec.pojo.MachineCode;
+import com.zyhao.openec.pojo.RepEntity;
 import com.zyhao.openec.util.UniqueCodeUtil;
 
 /**

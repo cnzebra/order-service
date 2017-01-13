@@ -30,6 +30,7 @@ import com.zyhao.openec.order.entity.User;
 import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.pojo.SellerOrder;
 import com.zyhao.openec.order.service.OrderService;
+import com.zyhao.openec.pojo.RepEntity;
 
 /**
  * 
@@ -52,15 +53,18 @@ public class OrderController {
 	 * @throws Exception
 	 */
 	@RequestMapping(path="/new",method=RequestMethod.POST)
-	public ResponseEntity<String> createOrder(@Validated @RequestBody BigOrder reqOrder) throws Exception {
-
+	public ResponseEntity createOrder(@Validated @RequestBody BigOrder reqOrder) throws Exception {
+		RepEntity response = new RepEntity();
 	    log.info("createOrder method run params is "+reqOrder);
 		//判断是否登陆
 		User authenticatedUser = orderService.getAuthenticatedUser();
 		if(authenticatedUser == null || authenticatedUser.getId() == null){
-			return Optional.ofNullable("no login")
-	                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.NOT_FOUND))
-	                .orElseThrow(() -> new Exception("no login"));
+			
+			response.setData("");
+			response.setMsg("请登录");
+			response.setStatus("1");
+			
+			return new ResponseEntity(response,HttpStatus.NOT_FOUND);
 		}
 		
 		Integer totalPrice = 0;//总支付价格
@@ -88,9 +92,12 @@ public class OrderController {
 					inventoryList.add(orderItem.getSku());
 					orderItem.setOrderCode(orderCode);
 				}else{
-					return Optional.ofNullable("product is null, cannot creater order")
-			                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.NOT_FOUND))
-			                .orElseThrow(() -> new Exception("product is null, cannot creater order"));
+					response.setData("product is null, cannot creater order");
+					response.setMsg("product is null, cannot creater order");
+					response.setStatus("1");
+					
+					return new ResponseEntity(response,HttpStatus.NOT_FOUND);
+					
 				}
 				orderitems.add(orderItem);
 			}
@@ -100,9 +107,13 @@ public class OrderController {
 			//调用库存接口,获取商品库存
 			Inventory[] inventoryBySKUS = orderService.getInventoryBySKUS(inventoryList);
 			if(inventoryBySKUS == null){
-				return Optional.ofNullable("query inventory failed, cannot creater order")
-		                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.NOT_FOUND))
-		                .orElseThrow(() -> new Exception("query inventory failed, cannot creater order"));
+				
+				response.setData("query inventory failed, cannot creater order");
+				response.setMsg("query inventory failed, cannot creater order");
+				response.setStatus("1");
+				
+				return new ResponseEntity(response,HttpStatus.NOT_FOUND);
+				
 			}
 			
 			//查询商品价格和库存校验
@@ -110,9 +121,12 @@ public class OrderController {
 				Inventory inventory = inventoryBySKUS[i];
 				OrderItem orderItem = mapper.get(inventory.getSku());
 				if(orderItem.getGoodsCount() > inventory.getAmount()){//判断库存
-				    return Optional.ofNullable(inventory.getSku()+"Not enough stock, cannot creater order")
-			                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.NOT_FOUND))
-			                .orElseThrow(() -> new Exception(inventory.getSku()+"Not enough stock, cannot creater order"));
+				    response.setData(inventory.getSku()+"Not enough stock, cannot creater order");
+					response.setMsg(inventory.getSku()+"Not enough stock, cannot creater order");
+					response.setStatus("1");
+					
+					return new ResponseEntity(response,HttpStatus.NOT_FOUND);
+					
 				}else{
 					//计算价格
 					totalPrice = totalPrice + inventory.getPrice();//总售价格
@@ -150,9 +164,11 @@ public class OrderController {
         orderService.createOrder(reqOrder, orders, orderitems);
 		mapper.clear();
 		mapper = null;
-		return Optional.ofNullable(reqOrder)
-                .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
-                .orElseThrow(() -> new Exception("Could not find createOrder"));
+		response.setData(reqOrder);
+		response.setMsg("creater order success");
+		response.setStatus("0");
+			
+		return new ResponseEntity(response,HttpStatus.OK);
 	}
 	
 	/**
