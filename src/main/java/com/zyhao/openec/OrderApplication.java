@@ -64,6 +64,6 @@ public class OrderApplication {
     @Bean
 	MachineCode machineCode() {
 		RestTemplate restTemplate=new RestTemplate();
-		return restTemplate.getForObject("http://192.168.1.129:8104/nologin/uniqueCode", MachineCode.class);
+		return restTemplate.getForObject("http://192.168.1.131/api/unique_code/nologin/uniqueCode", MachineCode.class);
 	}
 }

@@ -328,6 +328,11 @@ public class OrderService {
 				statusNot.add("0");
 				
 				Page<Orders> orderList = orderRepository.findByMemberIdAndStatusNotIn(user.getId(),statusNot,pageable);
+				List<Orders> content = orderList.getContent();
+				log.info("====content======"+content);
+				for(Orders o :content){
+					o.setOrderItems(orderItemRepository.findByOrderCode(o.getOrderCode()));
+				}
 				
 				resp.setMsg("订单列表查询成功");
 				resp.setStatus("0");
@@ -346,7 +351,11 @@ public class OrderService {
 			
 
 			Page<Orders> orderList = orderRepository.findByMemberIdAndStatus(user.getId(),status,pageable);
-			
+			List<Orders> content = orderList.getContent();
+			log.info("====content======"+content);
+			for(Orders o :content){
+				o.setOrderItems(orderItemRepository.findByOrderCode(o.getOrderCode()));
+			}
 			resp.setMsg("订单列表查询成功");
 			resp.setStatus("0");
 			resp.setData(orderList);
