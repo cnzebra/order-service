@@ -75,22 +75,24 @@ public class OrderController {
 		String tradeOutNo = orderService.getTradeOutNo(reqOrder.getChannelId());
 		
 		List<Orders> orders = new ArrayList<Orders>();
-		List<OrderItem> orderitems = new ArrayList<OrderItem>();
+		List<OrderItem> orderitems = new ArrayList<OrderItem>();//存放订单的商品
 		log.info("createOrder method run tradeOutNo is "+tradeOutNo+ "reqOrder is " +reqOrder);
 		
 		for (SellerOrder sellerOrder : sellerOrders) {
 			inventoryList.clear();
-			Integer orderPrice = 0;
+			Integer orderPrice = 0;//订单的总价格
+			Integer goodsCount = 0;//订单的商品数量
+			
 			//获取订单的编码
 			String orderCode = orderService.getOrderCode();
 			
 			//判断商品库存
-			List<OrderItem> orderItems = sellerOrder.getOrderItems();
+			List<OrderItem> orderItems = sellerOrder.getOrderItems();//订单所有的商品
 			for (OrderItem orderItem : orderItems) {
 				if(orderItem.getSku() != null){
-					mapper.put(orderItem.getSku(),orderItem);
+					mapper.put(orderItem.getSku(),orderItem);//为了方便获取订单的商品使用map
 					inventoryList.add(orderItem.getSku());
-					orderItem.setOrderCode(orderCode);
+					orderItem.setOrderCode(orderCode);//存放订单的商品
 				}else{
 					response.setData("product is null, cannot creater order");
 					response.setMsg("product is null, cannot creater order");
@@ -131,6 +133,9 @@ public class OrderController {
 					//计算价格
 					totalPrice = totalPrice + inventory.getPrice();//总售价格
 					orderPrice = orderPrice + inventory.getPrice();//订单价格
+					goodsCount = goodsCount +orderItem.getGoodsCount();
+					
+					orderItem.setSpecifications(inventory.getSpecs());
 				}
 			}
 			
@@ -141,10 +146,12 @@ public class OrderController {
 			tempOrder.setCreatedAt(new Date().getTime());
 			tempOrder.setStatus("0");
 			tempOrder.setMemberId(authenticatedUser.getId());
-			tempOrder.setRealSellPrice(sellerOrder.getRealSellPrice());
-			tempOrder.setGoodsCount(sellerOrder.getGoodsCount());
+			tempOrder.setRealSellPrice(orderPrice);
+			tempOrder.setGoodsCount(goodsCount);
 			tempOrder.setSellerId(sellerOrder.getSellerId());
-			tempOrder.setSellerName(sellerOrder.getSellerName());
+			
+			tempOrder.setSellerName(orderService.getSellerName(sellerOrder.getSellerId()));
+			
 			tempOrder.setChannelId(reqOrder.getChannelId());
 			tempOrder.setAddress(reqOrder.getAddress());
 			tempOrder.setConsignee(reqOrder.getConsignee());
@@ -157,6 +164,7 @@ public class OrderController {
 			tempOrder.setIsBilled("F");
 			
 			orders.add(tempOrder);
+			sellerOrder.setSellerName(tempOrder.getSellerName());
 		}
 		reqOrder.setTradeOutNo(tradeOutNo);
 		reqOrder.setTotalPrice(totalPrice);

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.zyhao.openec.entity.Store;
 import com.zyhao.openec.order.entity.Inventory;
 import com.zyhao.openec.order.entity.OrderItem;
 import com.zyhao.openec.order.entity.Orders;
@@ -624,6 +625,22 @@ public class OrderService {
 			return resp;
 		}
 
+	}
+
+	public String getSellerName(Long sellerId) {
+		HttpHeaders headers = new HttpHeaders();
+		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+		headers.setContentType(type);
+		
+		JSONObject json = new JSONObject();
+		json.put("id",sellerId);
+		
+        log.info("getSellerName method call order method param is "+json);
+        
+	    HttpEntity<String> formEntity = new HttpEntity<String>(json.toString(), headers);
+		Store store = oAuth2RestTemplate.postForObject("http://store-service/nologin/findStoreById",formEntity, Store.class);		
+		log.info("getSellerName is "+store);
+		return store.getStoreName();
 	}
 
 }
