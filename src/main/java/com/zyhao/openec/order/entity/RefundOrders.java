@@ -67,7 +67,7 @@ public class RefundOrders implements Serializable {
 	private String channelId;
 
 	/** 用户. */
-	private Long memberId;
+	private String memberId;
 
 	/** 商品件数. */
 	private Long goodsCount;
@@ -287,7 +287,7 @@ public class RefundOrders implements Serializable {
 	 * @param memberId
 	 *            用户
 	 */
-	public void setMemberId(Long memberId) {
+	public void setMemberId(String memberId) {
 		this.memberId = memberId;
 	}
 
@@ -296,7 +296,7 @@ public class RefundOrders implements Serializable {
 	 * 
 	 * @return 用户
 	 */
-	public Long getMemberId() {
+	public String getMemberId() {
 		return this.memberId;
 	}
 

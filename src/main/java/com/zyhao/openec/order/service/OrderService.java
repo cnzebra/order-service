@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -28,7 +30,6 @@ import com.zyhao.openec.order.entity.OrderItem;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.entity.RefundOrderItem;
 import com.zyhao.openec.order.entity.RefundOrders;
-import com.zyhao.openec.order.entity.User;
 import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.repository.OrderItemRepository;
 import com.zyhao.openec.order.repository.OrderRepository;
@@ -47,13 +48,14 @@ import com.zyhao.openec.util.UniqueCodeUtil;
 @Service
 public class OrderService {
 	private final Log log = LogFactory.getLog(OrderService.class);
-	private OAuth2RestTemplate oAuth2RestTemplate;
+//	private OAuth2RestTemplate oAuth2RestTemplate;
     private RestTemplate restTemplate;
     
     @Autowired
-    public OrderService(@LoadBalanced OAuth2RestTemplate oAuth2RestTemplate,
+    public OrderService(
+//    		@LoadBalanced OAuth2RestTemplate oAuth2RestTemplate,
         @LoadBalanced RestTemplate normalRestTemplate) {
-        this.oAuth2RestTemplate = oAuth2RestTemplate;
+//        this.oAuth2RestTemplate = oAuth2RestTemplate;
         this.restTemplate = normalRestTemplate;
     }
 	@Autowired
@@ -70,17 +72,26 @@ public class OrderService {
 	 * 认证平台
 	 * @return
 	 */
-	public User getAuthenticatedUser() {
-        return oAuth2RestTemplate.getForObject("http://user-service/uaa/v1/me", User.class);
-    }
-
+//	public User getAuthenticatedUser() {
+//        return oAuth2RestTemplate.getForObject("http://user-service/uaa/v1/me", User.class);
+//    }
+	
+	@Autowired  
+    HttpServletRequest request;
+	/**
+	 * 认证平台
+	 * @return
+	 */
+	public Map<String,String[]> getAuthenticatedUser() {
+		return request.getParameterMap();
+	}
 	public String getTradeOutNo(String channelId) {
-		String getPayInfoCode = oAuth2RestTemplate.getForObject("http://payment-service/v1/getPayInfoCode?channel_id="+channelId, String.class);		
+		String getPayInfoCode = restTemplate.getForObject("http://payment-service/v1/getPayInfoCode?channel_id="+channelId, String.class);		
 		log.info("getTradeOutNo is "+getPayInfoCode);
 		return getPayInfoCode;
 	}
 
-	public String createPayInfo(BigOrder reqOrder) throws Exception {
+	public String createPayInfo(HttpServletRequest request,BigOrder reqOrder) throws Exception {
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);
@@ -89,7 +100,7 @@ public class OrderService {
 		json.put("outTradeNo", reqOrder.getTradeOutNo());
 		json.put("totalPrice", reqOrder.getTotalPrice());
 		json.put("payPrice", reqOrder.getTotalPrice());
-		json.put("userId", getAuthenticatedUser().getId());
+		json.put("userId", getAuthenticatedUser().get("id")[0]);
 		json.put("payType","1");//1-现金支付 2-货到付款
 		json.put("channelId", reqOrder.getChannelId());
 		json.put("payStatus", "0");
@@ -97,7 +108,7 @@ public class OrderService {
         log.info("createPayInfo method call order method param is "+json);
         
 	    HttpEntity<String> formEntity = new HttpEntity<String>(json.toString(), headers);
-		String createPayInfo = oAuth2RestTemplate.postForObject("http://payment-service/v1/createPayInfo",formEntity, String.class);		
+		String createPayInfo = restTemplate.postForObject("http://payment-service/v1/createPayInfo",formEntity, String.class);		
 		log.info("createPayInfo is "+createPayInfo);
 		return createPayInfo;
 	}
@@ -107,7 +118,7 @@ public class OrderService {
 	 * @throws Exception 
 	 */
 	@Transactional
-	public BigOrder createOrder(BigOrder bigOrder,List<Orders>orders,List<OrderItem> orderItems) throws Exception{
+	public BigOrder createOrder(HttpServletRequest request,BigOrder bigOrder,List<Orders>orders,List<OrderItem> orderItems) throws Exception{
 		//保存订单信息
 		if(orders != null){
 	        orderRepository.save(orders);
@@ -118,7 +129,7 @@ public class OrderService {
 	    }
 		//保存支付信息
 	    if(bigOrder != null){
-		    createPayInfo(bigOrder);
+		    createPayInfo(request,bigOrder);
 	    }
 		return bigOrder;
 	}
@@ -132,10 +143,10 @@ public class OrderService {
 	 * @param refundOrders
 	 * @return
 	 */
-	public RepEntity createRefundOrder(RefundOrders refundOrders) {
+	public RepEntity createRefundOrder(HttpServletRequest request,RefundOrders refundOrders) {
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
+			Map<String,String[]> userId = getAuthenticatedUser();
 			
 			Long currTime = System.currentTimeMillis();
 			
@@ -146,7 +157,7 @@ public class OrderService {
 			refundOrders.setCreateAt(currTime);
 			
 			/** 用户id. */
-			refundOrders.setMemberId(user.getId());
+			refundOrders.setMemberId(userId.get("id")[0]);
 			
 			/** 最后变更时间. */
 			refundOrders.setModifyAt(currTime);
@@ -158,7 +169,7 @@ public class OrderService {
 			refundOrders.setIsBilled("F");
 			
 			/** 商户订单号(通过原订单号查询回来). */
-			Orders reOrder = orderRepository.findByMemberIdAndOrderCode(user.getId(), refundOrders.getOrderCode());
+			Orders reOrder = orderRepository.findByMemberIdAndOrderCode(userId.get("id")[0], refundOrders.getOrderCode());
 			if(reOrder == null){
 				resp.setStatus("-1");
 				resp.setMsg("原订单查询失败,请检查订单号");
@@ -223,7 +234,7 @@ public class OrderService {
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);				
 		HttpEntity<List<String>> formEntity = new HttpEntity<List<String>>(reqAry, headers);		
-		Inventory[] inventoryAry = oAuth2RestTemplate.postForObject("http://inventory-service/v1/batch",formEntity, Inventory[].class);
+		Inventory[] inventoryAry = restTemplate.postForObject("http://inventory-service/v1/batch",formEntity, Inventory[].class);
 		
 		return inventoryAry;
 	}
@@ -233,12 +244,12 @@ public class OrderService {
 	 * @param 
 	 * @return
 	 */
-	public RepEntity getRefundList(int page,int size,String type) {
+	public RepEntity getRefundList(HttpServletRequest request,int page,int size,String type) {
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
+			Map<String,String[]> userId = getAuthenticatedUser();
 			Pageable pageable = new PageRequest(page, size);
-			Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberIdAndType(user.getId(),type,pageable);
+			Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberIdAndType(userId.get("id")[0],type,pageable);
 			resp.setData(refundOrderList);
 			resp.setMsg("退单列表获取成功");
 			resp.setStatus("0");
@@ -258,12 +269,12 @@ public class OrderService {
 	 * @param 
 	 * @return
 	 */
-	public RepEntity getRefundDetail(String refundCode){
+	public RepEntity getRefundDetail(HttpServletRequest request,String refundCode){
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
+			Map<String,String[]> userId = getAuthenticatedUser();
 		
-			RefundOrders refundOrder =  refundOrderRepository.findByMemberIdAndRefundOrderCode(user.getId(),refundCode);
+			RefundOrders refundOrder =  refundOrderRepository.findByMemberIdAndRefundOrderCode(userId.get("id")[0],refundCode);
 		
 			resp.setData(refundOrder);
 			resp.setMsg("退单详情获取成功");
@@ -283,12 +294,13 @@ public class OrderService {
 	 * @param 
 	 * @return
 	 */
-	public RepEntity modifyRefundStatus(String refundCode,String status,String refundOpinion){
+	public RepEntity modifyRefundStatus(HttpServletRequest request,String refundCode,String status,String refundOpinion){
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
+			Map<String,String[]> user = getAuthenticatedUser();
+			String userId = user.get("id")[0];
 			
-			RefundOrders refundOrder =  refundOrderRepository.findByMemberIdAndRefundOrderCode(user.getId(),refundCode);
+			RefundOrders refundOrder =  refundOrderRepository.findByMemberIdAndRefundOrderCode(userId,refundCode);
 			
 			refundOrder.setStatus(status);
 			
@@ -315,11 +327,12 @@ public class OrderService {
 	 * @param size
 	 * @return
 	 */
-	public RepEntity getOrderList(int page, int size,String status) {
+	public RepEntity getOrderList(HttpServletRequest request,int page, int size,String status) {
 		page = page - 1;
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
+			Map<String,String[]> user = getAuthenticatedUser();
+			String userId = user.get("id")[0];
 			Pageable pageable = new PageRequest(page, size);
 			if(status.equals("all") || status.equals("ALL")){
 				
@@ -328,7 +341,7 @@ public class OrderService {
 				statusNot.add("100");
 				statusNot.add("0");
 				
-				Page<Orders> orderList = orderRepository.findByMemberIdAndStatusNotIn(user.getId(),statusNot,pageable);
+				Page<Orders> orderList = orderRepository.findByMemberIdAndStatusNotIn(userId,statusNot,pageable);
 				List<Orders> content = orderList.getContent();
 				log.info("====content======"+content);
 				for(Orders o :content){
@@ -351,7 +364,7 @@ public class OrderService {
 			}
 			
 
-			Page<Orders> orderList = orderRepository.findByMemberIdAndStatus(user.getId(),status,pageable);
+			Page<Orders> orderList = orderRepository.findByMemberIdAndStatus(userId,status,pageable);
 			List<Orders> content = orderList.getContent();
 			log.info("====content======"+content);
 			for(Orders o :content){
@@ -376,7 +389,7 @@ public class OrderService {
 	 * @param size
 	 * @return
 	 */
-	public RepEntity getWaitPayOrderList(String outTradeNos) {
+	public RepEntity getWaitPayOrderList(HttpServletRequest request,String outTradeNos) {
 		RepEntity resp = new RepEntity();
 
 		try{
@@ -386,7 +399,7 @@ public class OrderService {
 			List<List<Orders>> orderList = new LinkedList<List<Orders>>();
 			
 			for (String outTradeNo : _outTradeNos) {
-				orderList.add(getWaitPayOrderByOutTradeNo(outTradeNo));
+				orderList.add(getWaitPayOrderByOutTradeNo(request,outTradeNo));
 			}
 			
 //			List<List<Orders>> orderList = waitPayInfoList.stream().map(payInfoMap -> getWaitPayOrderByOutTradeNo(payInfoMap)).collect(Collectors.toList());
@@ -407,10 +420,11 @@ public class OrderService {
 		
 	}
 	
-	public List<Orders> getWaitPayOrderByOutTradeNo(String outTradeNo){
+	public List<Orders> getWaitPayOrderByOutTradeNo(HttpServletRequest request,String outTradeNo){
 		try{	
-		User user = getAuthenticatedUser();
-		return orderRepository.findByMemberIdAndOutTradeNo(user.getId(),outTradeNo);
+			Map<String,String[]> user = getAuthenticatedUser();
+			String userId = user.get("id")[0];
+		    return orderRepository.findByMemberIdAndOutTradeNo(userId,outTradeNo);
 		}catch(Exception e){
 			e.printStackTrace();
 			return null;
@@ -424,11 +438,12 @@ public class OrderService {
 	 * @param size
 	 * @return
 	 */
-	public RepEntity getWaitPayOrderDetail(String outTradeNo) {
+	public RepEntity getWaitPayOrderDetail(HttpServletRequest request,String outTradeNo) {
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
-			List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(user.getId(),outTradeNo);
+			Map<String,String[]> user = getAuthenticatedUser();
+			String userId = user.get("id")[0];
+			List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(userId,outTradeNo);
 			resp.setStatus("0");
 			resp.setMsg("查询成功");
 			resp.setData(orders);
@@ -450,11 +465,12 @@ public class OrderService {
 	 * @param size
 	 * @return
 	 */
-	public RepEntity getOrderByOrderCode(String orderCode){
+	public RepEntity getOrderByOrderCode(HttpServletRequest request,String orderCode){
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
-			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(),orderCode);
+			Map<String,String[]> user = getAuthenticatedUser();
+			String userId = user.get("id")[0];
+			Orders order = orderRepository.findByMemberIdAndOrderCode(userId,orderCode);
 			
 			if(order == null || order.getStatus().equals("100")){
 				resp.setStatus("-1");
@@ -483,11 +499,12 @@ public class OrderService {
 	 * @param status
 	 * @return
 	 */
-	public RepEntity editOrderStatus(String orderCode, String status) {
+	public RepEntity editOrderStatus(HttpServletRequest request,String orderCode, String status) {
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
-			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(),orderCode);
+			Map<String,String[]> user = getAuthenticatedUser();
+			String userId = user.get("id")[0];
+			Orders order = orderRepository.findByMemberIdAndOrderCode(userId,orderCode);
 			
 			/**
 			 * 3 状态为确认收货 , 5状态为取消订单
@@ -527,11 +544,12 @@ public class OrderService {
 	 * @param orderCode
 	 * @return
 	 */
-	public Object deleteOrder(String orderCode) {
+	public Object deleteOrder(HttpServletRequest request,String orderCode) {
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
-			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(),orderCode);
+			Map<String,String[]> user = getAuthenticatedUser();
+			String userId = user.get("id")[0];
+			Orders order = orderRepository.findByMemberIdAndOrderCode(userId,orderCode);
 			
 			if(order == null || order.getStatus().equals("100")){
 				resp.setStatus("-1");
@@ -563,9 +581,10 @@ public class OrderService {
 	 * @param status
 	 * @return
 	 */
-	public Object editOrderPayStatus(String out_trade_no, String status,String orderstatus) {
-		User user = getAuthenticatedUser();
-		List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(user.getId(),out_trade_no);
+	public Object editOrderPayStatus(HttpServletRequest request,String out_trade_no, String status,String orderstatus) {
+		Map<String,String[]> user = getAuthenticatedUser();
+		String userId = user.get("id")[0];
+		List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(userId,out_trade_no);
 		for (Orders order : orders) {
 			//若支付失败，订单状态为待支付
 			order.setPayStatus(status);
@@ -584,12 +603,13 @@ public class OrderService {
 		return orderRepository.save(orders);
 	}
 
-	public RepEntity getRefundListByStatus(int page, int size, String type, String status) {
+	public RepEntity getRefundListByStatus(HttpServletRequest request,int page, int size, String type, String status) {
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
+			Map<String,String[]> user = getAuthenticatedUser();
+			String userId = user.get("id")[0];
 			Pageable pageable = new PageRequest(page, size);
-			Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberIdAndTypeAndStatus(user.getId(),status,type,pageable);
+			Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberIdAndTypeAndStatus(userId,status,type,pageable);
 			resp.setData(refundOrderList);
 			resp.setMsg("退单列表获取成功");
 			resp.setStatus("0");
@@ -603,11 +623,12 @@ public class OrderService {
 		}
 	}
 
-	public RepEntity setIsRemind(String orderCode) {
+	public RepEntity setIsRemind(HttpServletRequest request,String orderCode) {
 		RepEntity resp = new RepEntity();
 		try{
-			User user = getAuthenticatedUser();
-			Orders order = orderRepository.findByMemberIdAndOrderCode(user.getId(), orderCode);
+			Map<String,String[]> user = getAuthenticatedUser();
+			String userId = user.get("id")[0];
+			Orders order = orderRepository.findByMemberIdAndOrderCode(userId, orderCode);
 			order.setIsRemind("1");
 			orderRepository.save(order);
 			
@@ -627,7 +648,7 @@ public class OrderService {
 
 	}
 
-	public String getSellerName(Long sellerId) {
+	public String getSellerName(String sellerId) {
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);
@@ -638,7 +659,7 @@ public class OrderService {
         log.info("getSellerName method call order method param is "+json);
         
 	    HttpEntity<String> formEntity = new HttpEntity<String>(json.toString(), headers);
-		Store store = oAuth2RestTemplate.postForObject("http://store-service/nologin/findStoreById",formEntity, Store.class);		
+		Store store = restTemplate.postForObject("http://store-service/nologin/findStoreById",formEntity, Store.class);		
 		log.info("getSellerName is "+store);
 		return store.getStoreName();
 	}

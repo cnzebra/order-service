@@ -47,13 +47,13 @@ public class Orders implements Serializable {
 	private String sellerName;
 
 	/** 商户id. */
-	private Long sellerId;
+	private String sellerId;
 
 	/** 渠道. */
 	private String channelId;
 
 	/** 用户. */
-	private Long memberId;
+	private String memberId;
 
 	/** 商品件数. */
 	private Integer goodsCount;
@@ -252,7 +252,7 @@ public class Orders implements Serializable {
 	 * @param sellerId
 	 *            商户id
 	 */
-	public void setSellerId(Long sellerId) {
+	public void setSellerId(String sellerId) {
 		this.sellerId = sellerId;
 	}
 
@@ -261,7 +261,7 @@ public class Orders implements Serializable {
 	 * 
 	 * @return 商户id
 	 */
-	public Long getSellerId() {
+	public String getSellerId() {
 		return this.sellerId;
 	}
 
@@ -290,7 +290,7 @@ public class Orders implements Serializable {
 	 * @param memberId
 	 *            用户
 	 */
-	public void setMemberId(Long memberId) {
+	public void setMemberId(String memberId) {
 		this.memberId = memberId;
 	}
 
@@ -299,7 +299,7 @@ public class Orders implements Serializable {
 	 * 
 	 * @return 用户
 	 */
-	public Long getMemberId() {
+	public String getMemberId() {
 		return this.memberId;
 	}
 

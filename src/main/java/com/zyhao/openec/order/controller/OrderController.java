@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,6 @@ import com.zyhao.openec.order.entity.Inventory;
 import com.zyhao.openec.order.entity.OrderItem;
 import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.entity.RefundOrders;
-import com.zyhao.openec.order.entity.User;
 import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.pojo.SellerOrder;
 import com.zyhao.openec.order.service.OrderService;
@@ -53,12 +54,15 @@ public class OrderController {
 	 * @throws Exception
 	 */
 	@RequestMapping(path="/new",method=RequestMethod.POST)
-	public ResponseEntity createOrder(@Validated @RequestBody BigOrder reqOrder) throws Exception {
+	public ResponseEntity createOrder(
+			@Validated @RequestBody BigOrder reqOrder,
+			HttpServletRequest request) throws Exception {
 		RepEntity response = new RepEntity();
 	    log.info("createOrder method run params is "+reqOrder);
 		//判断是否登陆
-		User authenticatedUser = orderService.getAuthenticatedUser();
-		if(authenticatedUser == null || authenticatedUser.getId() == null){
+//		User authenticatedUser = orderService.getAuthenticatedUser();
+	    String authenticatedUserId = request.getParameter("id");
+		if(authenticatedUserId == null ){
 			
 			response.setData("");
 			response.setMsg("请登录");
@@ -145,14 +149,15 @@ public class OrderController {
 			tempOrder.setOrderCode(orderCode);
 			tempOrder.setCreatedAt(new Date().getTime());
 			tempOrder.setStatus("0");
-			tempOrder.setMemberId(authenticatedUser.getId());
+			tempOrder.setMemberId(authenticatedUserId);
 			tempOrder.setRealSellPrice(orderPrice);
 			tempOrder.setGoodsCount(goodsCount);
 			tempOrder.setSellerId(sellerOrder.getSellerId());
 			
 			tempOrder.setSellerName(orderService.getSellerName(sellerOrder.getSellerId()));
-			
-			tempOrder.setChannelId(reqOrder.getChannelId());
+		    Map<String, String[]> authenticatedUser = orderService.getAuthenticatedUser();
+			String channelId = authenticatedUser.get("businessId")[0];
+			tempOrder.setChannelId(channelId);
 			tempOrder.setAddress(reqOrder.getAddress());
 			tempOrder.setConsignee(reqOrder.getConsignee());
 			tempOrder.setContactTel(reqOrder.getContactTel());
@@ -169,7 +174,7 @@ public class OrderController {
 		reqOrder.setTradeOutNo(tradeOutNo);
 		reqOrder.setTotalPrice(totalPrice);
 		log.info("createOrder method run tradeOutNo is "+tradeOutNo+ "reqOrder is " +reqOrder+" orders = "+orders+" orderitems is "+orderitems);
-        orderService.createOrder(reqOrder, orders, orderitems);
+        orderService.createOrder(request,reqOrder, orders, orderitems);
 		mapper.clear();
 		mapper = null;
 		response.setData(reqOrder);
@@ -187,8 +192,12 @@ public class OrderController {
 	 * @throws Exception
 	 */
 	@RequestMapping(path="/orderList",method = RequestMethod.GET)
-	public ResponseEntity<Page<Orders>> queryOrderList(@RequestParam int page, @RequestParam int size,@RequestParam String status) throws Exception {
-        return Optional.ofNullable(orderService.getOrderList(page, size,status))
+	public ResponseEntity<Page<Orders>> queryOrderList(
+			@RequestParam int page, 
+			@RequestParam int size,
+			@RequestParam String status,
+			HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.getOrderList(request,page, size,status))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getOrderList"));	
 	}
@@ -202,8 +211,10 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path = "/{orderCode}", method = RequestMethod.GET)
-	public ResponseEntity<Orders> getOrder(@PathVariable("orderCode") String orderCode) throws Exception {
-        return Optional.ofNullable(orderService.getOrderByOrderCode(orderCode))
+	public ResponseEntity<Orders> getOrder(
+			@PathVariable("orderCode") String orderCode,
+			HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.getOrderByOrderCode(request,orderCode))
                 .map(order -> new ResponseEntity(order,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getOrder"));
 	}
@@ -216,8 +227,10 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/waitPayOrder/{outTradeNo}",method=RequestMethod.GET)
-	public ResponseEntity<String> getWaitPayOrderDetail(@Validated @PathVariable("outTradeNo") String outTradeNo) throws Exception {
-        return Optional.ofNullable(orderService.getWaitPayOrderDetail(outTradeNo))
+	public ResponseEntity<String> getWaitPayOrderDetail(
+			@Validated @PathVariable("outTradeNo") String outTradeNo,
+			HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.getWaitPayOrderDetail(request,outTradeNo))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getWaitPayOrderDetail"));	
 	}
@@ -232,8 +245,8 @@ public class OrderController {
 	@Transactional
 	@RequestMapping(path = "/edit/{out_trade_no}", method = RequestMethod.GET)
 	public ResponseEntity<List<Orders>> editOrder(@PathVariable("out_trade_no") String out_trade_no,
-			@RequestParam String status,String orderstatus) throws Exception {
-        return Optional.ofNullable(orderService.editOrderPayStatus(out_trade_no,status,orderstatus))
+			@RequestParam String status,String orderstatus,HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.editOrderPayStatus(request,out_trade_no,status,orderstatus))
                 .map(orders -> new ResponseEntity(orders,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getWaitPayOrderDetail"));
 	}
@@ -248,9 +261,9 @@ public class OrderController {
 	@Transactional
 	@RequestMapping(path = "/editStatus/{orderCode}", method = RequestMethod.GET)
 	public ResponseEntity<Orders> editOrderStatus(@PathVariable("orderCode") String orderCode,
-			@RequestParam String status) throws Exception {
+			@RequestParam String status,HttpServletRequest request) throws Exception {
 
-        return Optional.ofNullable(orderService.editOrderStatus(orderCode,status))
+        return Optional.ofNullable(orderService.editOrderStatus(request,orderCode,status))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getWaitPayOrderDetail"));	
 	}
@@ -264,9 +277,9 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path = "/delete/{orderCode}", method = RequestMethod.GET)
-	public ResponseEntity<Orders> deleteOrder(@PathVariable("orderCode") String orderCode) throws Exception {
+	public ResponseEntity<Orders> deleteOrder(@PathVariable("orderCode") String orderCode,HttpServletRequest request) throws Exception {
 
-        return Optional.ofNullable(orderService.deleteOrder(orderCode))
+        return Optional.ofNullable(orderService.deleteOrder(request,orderCode))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getWaitPayOrderDetail"));	
 	}
@@ -279,8 +292,8 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/waitPayOrderList",method=RequestMethod.GET)
-	public ResponseEntity<String> getWaitPayOrderList(@Validated @RequestParam String outTradeNos) throws Exception {
-        return Optional.ofNullable(orderService.getWaitPayOrderList(outTradeNos))
+	public ResponseEntity<String> getWaitPayOrderList(@Validated @RequestParam String outTradeNos,HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.getWaitPayOrderList(request,outTradeNos))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getWaitPayOrderList"));	
 	}
@@ -293,8 +306,10 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/newRefund",method=RequestMethod.POST)
-	public ResponseEntity<String> createRefundOrder(@Validated @RequestBody RefundOrders refundOrders) throws Exception {
-        return Optional.ofNullable(orderService.createRefundOrder(refundOrders))
+	public ResponseEntity<String> createRefundOrder(
+			@Validated @RequestBody RefundOrders refundOrders,
+			HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.createRefundOrder(request,refundOrders))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find createRefundOrder"));	
 	}
@@ -307,8 +322,12 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/refundList",method=RequestMethod.GET)
-	public ResponseEntity<String> getRefundOrderList(@Validated @RequestParam int page, @RequestParam int size,@RequestParam String type) throws Exception {
-        return Optional.ofNullable(orderService.getRefundList(page, size,type))
+	public ResponseEntity<String> getRefundOrderList(
+			@Validated @RequestParam int page, 
+			@RequestParam int size,
+			@RequestParam String type,
+			HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.getRefundList(request,page, size,type))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getRefundOrderList"));	
 	}
@@ -321,8 +340,14 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/refundListByStatus",method=RequestMethod.GET)
-	public ResponseEntity<String> getRefundOrderListByStatus(@Validated @RequestParam int page, @RequestParam int size,@RequestParam String type,@RequestParam String status) throws Exception {
-        return Optional.ofNullable(orderService.getRefundListByStatus(page, size,type,status))
+	public ResponseEntity<String> getRefundOrderListByStatus(
+			@Validated @RequestParam int page, 
+			@RequestParam int size,
+			@RequestParam String type,
+			@RequestParam String status,
+			HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.getRefundListByStatus(
+        		request,page, size,type,status))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find getRefundOrderList"));	
 	}
@@ -335,8 +360,12 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/refundVerify/{refundCode}",method=RequestMethod.GET)
-	public ResponseEntity<String> modifyRefundStatus(@Validated @PathVariable("refundCode") String refundCode,@RequestParam String status, @RequestParam String refundOpinion) throws Exception {
-        return Optional.ofNullable(orderService.modifyRefundStatus(refundCode, status, refundOpinion))
+	public ResponseEntity<String> modifyRefundStatus(
+			@Validated @PathVariable("refundCode") String refundCode,
+			@RequestParam String status, 
+			@RequestParam String refundOpinion,
+			HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.modifyRefundStatus(request,refundCode, status, refundOpinion))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find modifyRefundStatus"));	
 	}
@@ -349,8 +378,10 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/refundDetail/{refundCode}",method=RequestMethod.GET)
-	public ResponseEntity<String> getRefundDetail(@Validated @PathVariable("refundCode") String refundCode) throws Exception {
-        return Optional.ofNullable(orderService.getRefundDetail(refundCode))
+	public ResponseEntity<String> getRefundDetail(
+			@Validated @PathVariable("refundCode") String refundCode,
+			HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.getRefundDetail(request,refundCode))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find modifyRefundStatus"));	
 	}
@@ -363,8 +394,10 @@ public class OrderController {
 	 */
 	@Transactional
 	@RequestMapping(path="/remind/{orderCode}",method=RequestMethod.GET)
-	public ResponseEntity<String> setIsRemind(@Validated @PathVariable("orderCode") String orderCode) throws Exception {
-        return Optional.ofNullable(orderService.setIsRemind(orderCode))
+	public ResponseEntity<String> setIsRemind(
+			@Validated @PathVariable("orderCode") String orderCode,
+			HttpServletRequest request) throws Exception {
+        return Optional.ofNullable(orderService.setIsRemind(request,orderCode))
                 .map(bigOrder -> new ResponseEntity(bigOrder,HttpStatus.OK))
                 .orElseThrow(() -> new Exception("Could not find modifyRefundStatus"));	
 	}

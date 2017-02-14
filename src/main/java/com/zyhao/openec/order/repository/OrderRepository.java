@@ -24,7 +24,7 @@ public interface OrderRepository extends PagingAndSortingRepository<Orders, Stri
 	 * @param outTradeNo
 	 * @return
 	 */
-	List<Orders> findByMemberIdAndOutTradeNo(Long memberId,String outTradeNo);
+	List<Orders> findByMemberIdAndOutTradeNo(String memberId,String outTradeNo);
 	
 	
 	/**
@@ -33,7 +33,7 @@ public interface OrderRepository extends PagingAndSortingRepository<Orders, Stri
 	 * @param orderCode
 	 * @return
 	 */
-	Orders findByMemberIdAndOrderCode(Long memberId,String orderCode);
+	Orders findByMemberIdAndOrderCode(String memberId,String orderCode);
 	
 	/**
 	 * 按状态查询订单列表
@@ -42,7 +42,7 @@ public interface OrderRepository extends PagingAndSortingRepository<Orders, Stri
 	 * @param pageable
 	 * @return
 	 */
-	Page<Orders> findByMemberIdAndStatus(Long memberId,String status, Pageable pageable);
+	Page<Orders> findByMemberIdAndStatus(String memberId,String status, Pageable pageable);
 
 	
 	/**
@@ -52,7 +52,7 @@ public interface OrderRepository extends PagingAndSortingRepository<Orders, Stri
 	 * @param pageable
 	 * @return
 	 */
-	Page<Orders> findByMemberIdAndOutTradeNo(Long memberId,String outTradeNo, Pageable pageable);
+	Page<Orders> findByMemberIdAndOutTradeNo(String memberId,String outTradeNo, Pageable pageable);
 	
 //	/**
 //	 * 查询某人全部订单(pageable方式)
@@ -77,7 +77,7 @@ public interface OrderRepository extends PagingAndSortingRepository<Orders, Stri
 	 * @param pageable
 	 * @return
 	 */
-	public Page<Orders> findByMemberIdAndStatusNotIn(Long memberId,List<String> status, Pageable pageable);
+	public Page<Orders> findByMemberIdAndStatusNotIn(String memberId,List<String> status, Pageable pageable);
 	
 }
 

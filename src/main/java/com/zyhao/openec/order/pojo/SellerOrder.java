@@ -7,7 +7,7 @@ import com.zyhao.openec.order.entity.OrderItem;
 public class SellerOrder {
 	
 	private String sellerName;
-	private Long sellerId;
+	private String sellerId;
 	private Integer goodsCount;
 	private Integer realSellPrice;
 	
@@ -21,11 +21,11 @@ public class SellerOrder {
 		this.sellerName = sellerName;
 	}
 
-	public Long getSellerId() {
+	public String getSellerId() {
 		return sellerId;
 	}
 
-	public void setSellerId(Long sellerId) {
+	public void setSellerId(String sellerId) {
 		this.sellerId = sellerId;
 	}
 
