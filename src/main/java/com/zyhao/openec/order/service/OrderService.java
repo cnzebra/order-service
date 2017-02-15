@@ -100,7 +100,7 @@ public class OrderService {
 		json.put("outTradeNo", reqOrder.getTradeOutNo());
 		json.put("totalPrice", reqOrder.getTotalPrice());
 		json.put("payPrice", reqOrder.getTotalPrice());
-		json.put("userId", getAuthenticatedUser().get("id")[0]);
+		json.put("userId", getAuthenticatedUser().get("Session_id")[0]);
 		json.put("payType","1");//1-现金支付 2-货到付款
 		json.put("channelId", reqOrder.getChannelId());
 		json.put("payStatus", "0");
@@ -157,7 +157,7 @@ public class OrderService {
 			refundOrders.setCreateAt(currTime);
 			
 			/** 用户id. */
-			refundOrders.setMemberId(userId.get("id")[0]);
+			refundOrders.setMemberId(userId.get("Session_id")[0]);
 			
 			/** 最后变更时间. */
 			refundOrders.setModifyAt(currTime);
@@ -169,7 +169,7 @@ public class OrderService {
 			refundOrders.setIsBilled("F");
 			
 			/** 商户订单号(通过原订单号查询回来). */
-			Orders reOrder = orderRepository.findByMemberIdAndOrderCode(userId.get("id")[0], refundOrders.getOrderCode());
+			Orders reOrder = orderRepository.findByMemberIdAndOrderCode(userId.get("Session_id")[0], refundOrders.getOrderCode());
 			if(reOrder == null){
 				resp.setStatus("-1");
 				resp.setMsg("原订单查询失败,请检查订单号");
@@ -249,7 +249,7 @@ public class OrderService {
 		try{
 			Map<String,String[]> userId = getAuthenticatedUser();
 			Pageable pageable = new PageRequest(page, size);
-			Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberIdAndType(userId.get("id")[0],type,pageable);
+			Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberIdAndType(userId.get("Session_id")[0],type,pageable);
 			resp.setData(refundOrderList);
 			resp.setMsg("退单列表获取成功");
 			resp.setStatus("0");
@@ -274,7 +274,7 @@ public class OrderService {
 		try{
 			Map<String,String[]> userId = getAuthenticatedUser();
 		
-			RefundOrders refundOrder =  refundOrderRepository.findByMemberIdAndRefundOrderCode(userId.get("id")[0],refundCode);
+			RefundOrders refundOrder =  refundOrderRepository.findByMemberIdAndRefundOrderCode(userId.get("Session_id")[0],refundCode);
 		
 			resp.setData(refundOrder);
 			resp.setMsg("退单详情获取成功");
@@ -298,7 +298,7 @@ public class OrderService {
 		RepEntity resp = new RepEntity();
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
-			String userId = user.get("id")[0];
+			String userId = user.get("Session_id")[0];
 			
 			RefundOrders refundOrder =  refundOrderRepository.findByMemberIdAndRefundOrderCode(userId,refundCode);
 			
@@ -332,7 +332,7 @@ public class OrderService {
 		RepEntity resp = new RepEntity();
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
-			String userId = user.get("id")[0];
+			String userId = user.get("Session_id")[0];
 			Pageable pageable = new PageRequest(page, size);
 			if(status.equals("all") || status.equals("ALL")){
 				
@@ -423,7 +423,7 @@ public class OrderService {
 	public List<Orders> getWaitPayOrderByOutTradeNo(HttpServletRequest request,String outTradeNo){
 		try{	
 			Map<String,String[]> user = getAuthenticatedUser();
-			String userId = user.get("id")[0];
+			String userId = user.get("Session_id")[0];
 		    return orderRepository.findByMemberIdAndOutTradeNo(userId,outTradeNo);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -442,7 +442,7 @@ public class OrderService {
 		RepEntity resp = new RepEntity();
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
-			String userId = user.get("id")[0];
+			String userId = user.get("Session_id")[0];
 			List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(userId,outTradeNo);
 			resp.setStatus("0");
 			resp.setMsg("查询成功");
@@ -469,7 +469,7 @@ public class OrderService {
 		RepEntity resp = new RepEntity();
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
-			String userId = user.get("id")[0];
+			String userId = user.get("Session_id")[0];
 			Orders order = orderRepository.findByMemberIdAndOrderCode(userId,orderCode);
 			
 			if(order == null || order.getStatus().equals("100")){
@@ -503,7 +503,7 @@ public class OrderService {
 		RepEntity resp = new RepEntity();
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
-			String userId = user.get("id")[0];
+			String userId = user.get("Session_id")[0];
 			Orders order = orderRepository.findByMemberIdAndOrderCode(userId,orderCode);
 			
 			/**
@@ -548,7 +548,7 @@ public class OrderService {
 		RepEntity resp = new RepEntity();
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
-			String userId = user.get("id")[0];
+			String userId = user.get("Session_id")[0];
 			Orders order = orderRepository.findByMemberIdAndOrderCode(userId,orderCode);
 			
 			if(order == null || order.getStatus().equals("100")){
@@ -583,7 +583,7 @@ public class OrderService {
 	 */
 	public Object editOrderPayStatus(HttpServletRequest request,String out_trade_no, String status,String orderstatus) {
 		Map<String,String[]> user = getAuthenticatedUser();
-		String userId = user.get("id")[0];
+		String userId = user.get("Session_id")[0];
 		List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(userId,out_trade_no);
 		for (Orders order : orders) {
 			//若支付失败，订单状态为待支付
@@ -607,7 +607,7 @@ public class OrderService {
 		RepEntity resp = new RepEntity();
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
-			String userId = user.get("id")[0];
+			String userId = user.get("Session_id")[0];
 			Pageable pageable = new PageRequest(page, size);
 			Page<RefundOrders> refundOrderList = refundOrderRepository.findByMemberIdAndTypeAndStatus(userId,status,type,pageable);
 			resp.setData(refundOrderList);
@@ -627,7 +627,7 @@ public class OrderService {
 		RepEntity resp = new RepEntity();
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
-			String userId = user.get("id")[0];
+			String userId = user.get("Session_id")[0];
 			Orders order = orderRepository.findByMemberIdAndOrderCode(userId, orderCode);
 			order.setIsRemind("1");
 			orderRepository.save(order);

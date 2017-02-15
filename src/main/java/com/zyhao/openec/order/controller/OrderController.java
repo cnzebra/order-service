@@ -61,7 +61,7 @@ public class OrderController {
 	    log.info("createOrder method run params is "+reqOrder);
 		//判断是否登陆
 //		User authenticatedUser = orderService.getAuthenticatedUser();
-	    String authenticatedUserId = request.getParameter("id");
+	    String authenticatedUserId = request.getParameter("Session_id");
 		if(authenticatedUserId == null ){
 			
 			response.setData("");
@@ -156,7 +156,7 @@ public class OrderController {
 			
 			tempOrder.setSellerName(orderService.getSellerName(sellerOrder.getSellerId()));
 		    Map<String, String[]> authenticatedUser = orderService.getAuthenticatedUser();
-			String channelId = authenticatedUser.get("businessId")[0];
+			String channelId = authenticatedUser.get("Session_businessId")[0];
 			tempOrder.setChannelId(channelId);
 			tempOrder.setAddress(reqOrder.getAddress());
 			tempOrder.setConsignee(reqOrder.getConsignee());
