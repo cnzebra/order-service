@@ -115,7 +115,7 @@ public class OrderService {
 			}
 		    
 		}
-		json.put("sellerId",sellerId.substring(sellerId.indexOf(",")));
+		json.put("sellerId",sellerId.substring(sellerId.indexOf(",")+1));
         log.info("createPayInfo method call order method param is "+json);
         
 	    HttpEntity<String> formEntity = new HttpEntity<String>(json.toString(), headers);
