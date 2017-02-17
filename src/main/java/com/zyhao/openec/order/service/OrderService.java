@@ -57,6 +57,7 @@ public class OrderService {
         @LoadBalanced RestTemplate normalRestTemplate) {
 //        this.oAuth2RestTemplate = oAuth2RestTemplate;
         this.restTemplate = normalRestTemplate;
+        this.machineCode = restTemplate.getForObject("http://unique-code.zyhao.com:8104/nologin/uniqueCode",MachineCode.class);
     }
 	@Autowired
 	private OrderRepository orderRepository;
@@ -66,7 +67,7 @@ public class OrderService {
 	private OrderItemRepository orderItemRepository;
 	@Autowired
 	private UniqueCodeUtil uniqueCodeUtil;
-	@Autowired
+	
 	private MachineCode machineCode;
 	/**
 	 * 认证平台
@@ -91,7 +92,7 @@ public class OrderService {
 		return getPayInfoCode;
 	}
 
-	public String createPayInfo(HttpServletRequest request,BigOrder reqOrder) throws Exception {
+	public String createPayInfo(BigOrder reqOrder) throws Exception {
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);
@@ -100,7 +101,7 @@ public class OrderService {
 		json.put("outTradeNo", reqOrder.getTradeOutNo());
 		json.put("totalPrice", reqOrder.getTotalPrice());
 		json.put("payPrice", reqOrder.getTotalPrice());
-		json.put("userId", getAuthenticatedUser().get("Session_id")[0]);
+		json.put("userId", reqOrder.getMemberId());
 		json.put("payType","1");//1-现金支付 2-货到付款
 		json.put("channelId", reqOrder.getChannelId());
 		json.put("payStatus", "0");
@@ -118,7 +119,7 @@ public class OrderService {
 	 * @throws Exception 
 	 */
 	@Transactional
-	public BigOrder createOrder(HttpServletRequest request,BigOrder bigOrder,List<Orders>orders,List<OrderItem> orderItems) throws Exception{
+	public BigOrder createOrder(BigOrder bigOrder,List<Orders>orders,List<OrderItem> orderItems) throws Exception{
 		//保存订单信息
 		if(orders != null){
 	        orderRepository.save(orders);
@@ -129,7 +130,7 @@ public class OrderService {
 	    }
 		//保存支付信息
 	    if(bigOrder != null){
-		    createPayInfo(request,bigOrder);
+		    createPayInfo(bigOrder);
 	    }
 		return bigOrder;
 	}
@@ -663,5 +664,6 @@ public class OrderService {
 		log.info("getSellerName is "+store);
 		return store.getStoreName();
 	}
+
 
 }

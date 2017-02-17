@@ -1,5 +1,7 @@
 package com.zyhao.openec;
 
+import java.util.List;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
@@ -8,12 +10,19 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.zyhao.openec.entity.InfoData;
 import com.zyhao.openec.pojo.MachineCode;
 
 /**
@@ -35,16 +44,18 @@ public class OrderApplication {
         SpringApplication.run(OrderApplication.class, args);
     }
 
-    @LoadBalanced
-    @Bean
-//    public OAuth2RestTemplate loadBalancedOauth2RestTemplate(
-//            OAuth2ProtectedResourceDetails resource, OAuth2ClientContext context) {
-//        return new OAuth2RestTemplate(resource, context);
+//    @LoadBalanced
+//    @Bean
+//    public RestTemplate loadBalancedRestTemplate() {
+//        return new RestTemplate();
 //    }
-    public RestTemplate loadBalancedOauth2RestTemplate(){
-    	return new RestTemplate();
+
+    @LoadBalanced
+    @Bean(name = "normalRestTemplate")
+    public RestTemplate loadBalancedRestTemplate() {
+        return new RestTemplate();
     }
-    		
+    
     @Component
     public static class CustomizedRestMvcConfiguration extends RepositoryRestConfigurerAdapter {
 
@@ -58,10 +69,4 @@ public class OrderApplication {
     AlwaysSampler alwaysSampler() {
         return new AlwaysSampler();
     }
-    
-    @Bean
-	MachineCode machineCode() {
-		RestTemplate restTemplate=new RestTemplate();
-		return restTemplate.getForObject("http://192.168.1.131/api/unique_code/nologin/uniqueCode", MachineCode.class);
-	}
 }

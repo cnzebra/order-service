@@ -38,6 +38,8 @@ public class BigOrder {
 	
 	private String tradeOutNo;
 	
+	private String memberId;
+	
 	private List<SellerOrder> sellerOrders;
 
 	public String getConsignee() {
@@ -112,15 +114,21 @@ public class BigOrder {
 		this.tradeOutNo = tradeOutNo;
 	}
 
+	
+	public String getMemberId() {
+		return memberId;
+	}
+
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
 	@Override
 	public String toString() {
 		return "BigOrder [consignee=" + consignee + ", address=" + address + ", contactTel=" + contactTel
 				+ ", invoiceHeader=" + invoiceHeader + ", invoiceContent=" + invoiceContent + ", channelId=" + channelId
-				+ ", totalPrice=" + totalPrice + ", tradeOutNo=" + tradeOutNo + ", sellerOrders=" + sellerOrders + "]";
+				+ ", totalPrice=" + totalPrice + ", tradeOutNo=" + tradeOutNo + ", memberId=" + memberId
+				+ ", sellerOrders=" + sellerOrders + "]";
 	}
 
-	
-	
-	
-	
 }

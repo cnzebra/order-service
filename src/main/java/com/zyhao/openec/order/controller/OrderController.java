@@ -48,29 +48,17 @@ public class OrderController {
 
 	/**
 	 * 创建订单
-	 * 
 	 * @param reqOrder
+	 * @param authenticatedUserId 登录用户
 	 * @return
 	 * @throws Exception
 	 */
 	@RequestMapping(path="/new",method=RequestMethod.POST)
 	public ResponseEntity createOrder(
-			@Validated @RequestBody BigOrder reqOrder,
-			HttpServletRequest request) throws Exception {
+			@Validated @RequestBody BigOrder reqOrder) throws Exception {
 		RepEntity response = new RepEntity();
 	    log.info("createOrder method run params is "+reqOrder);
-		//判断是否登陆
-//		User authenticatedUser = orderService.getAuthenticatedUser();
-	    String authenticatedUserId = request.getParameter("Session_id");
-		if(authenticatedUserId == null ){
-			
-			response.setData("");
-			response.setMsg("请登录");
-			response.setStatus("1");
-			
-			return new ResponseEntity(response,HttpStatus.NOT_FOUND);
-		}
-		
+	    
 		Integer totalPrice = 0;//总支付价格
 		//初始化订单信息
 		List<String> inventoryList = new ArrayList<String>();
@@ -149,15 +137,14 @@ public class OrderController {
 			tempOrder.setOrderCode(orderCode);
 			tempOrder.setCreatedAt(new Date().getTime());
 			tempOrder.setStatus("0");
-			tempOrder.setMemberId(authenticatedUserId);
+			tempOrder.setMemberId(reqOrder.getMemberId());
 			tempOrder.setRealSellPrice(orderPrice);
 			tempOrder.setGoodsCount(goodsCount);
 			tempOrder.setSellerId(sellerOrder.getSellerId());
 			
 			tempOrder.setSellerName(orderService.getSellerName(sellerOrder.getSellerId()));
-		    Map<String, String[]> authenticatedUser = orderService.getAuthenticatedUser();
-			String channelId = authenticatedUser.get("Session_businessId")[0];
-			tempOrder.setChannelId(channelId);
+			
+			tempOrder.setChannelId(reqOrder.getChannelId());
 			tempOrder.setAddress(reqOrder.getAddress());
 			tempOrder.setConsignee(reqOrder.getConsignee());
 			tempOrder.setContactTel(reqOrder.getContactTel());
@@ -174,7 +161,7 @@ public class OrderController {
 		reqOrder.setTradeOutNo(tradeOutNo);
 		reqOrder.setTotalPrice(totalPrice);
 		log.info("createOrder method run tradeOutNo is "+tradeOutNo+ "reqOrder is " +reqOrder+" orders = "+orders+" orderitems is "+orderitems);
-        orderService.createOrder(request,reqOrder, orders, orderitems);
+        orderService.createOrder(reqOrder, orders, orderitems);
 		mapper.clear();
 		mapper = null;
 		response.setData(reqOrder);
