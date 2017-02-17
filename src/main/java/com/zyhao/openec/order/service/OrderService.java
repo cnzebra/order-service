@@ -31,6 +31,7 @@ import com.zyhao.openec.order.entity.Orders;
 import com.zyhao.openec.order.entity.RefundOrderItem;
 import com.zyhao.openec.order.entity.RefundOrders;
 import com.zyhao.openec.order.pojo.BigOrder;
+import com.zyhao.openec.order.pojo.SellerOrder;
 import com.zyhao.openec.order.repository.OrderItemRepository;
 import com.zyhao.openec.order.repository.OrderRepository;
 import com.zyhao.openec.order.repository.RefundOrderRepository;
@@ -105,7 +106,16 @@ public class OrderService {
 		json.put("payType","1");//1-现金支付 2-货到付款
 		json.put("channelId", reqOrder.getChannelId());
 		json.put("payStatus", "0");
-		
+		int size = reqOrder.getSellerOrders().size();
+		String sellerId = ",";
+		for(int i=0;i<size;i++){
+			SellerOrder o = reqOrder.getSellerOrders().get(0);
+			if(o.getSellerId() != null && o.getSellerId() != ""){
+				sellerId = sellerId+o.getSellerId() ;
+			}
+		    
+		}
+		json.put("sellerId",sellerId.substring(sellerId.indexOf(",")));
         log.info("createPayInfo method call order method param is "+json);
         
 	    HttpEntity<String> formEntity = new HttpEntity<String>(json.toString(), headers);
