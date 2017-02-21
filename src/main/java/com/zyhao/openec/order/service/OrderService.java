@@ -344,6 +344,7 @@ public class OrderService {
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
 			String userId = user.get("Session_id")[0];
+			String channelId = user.get("Session_businessId")[0];
 			Pageable pageable = new PageRequest(page, size);
 			if(status.equals("all") || status.equals("ALL")){
 				
@@ -352,7 +353,7 @@ public class OrderService {
 				statusNot.add("100");
 				statusNot.add("0");
 				
-				Page<Orders> orderList = orderRepository.findByMemberIdAndStatusNotIn(userId,statusNot,pageable);
+				Page<Orders> orderList = orderRepository.findByMemberIdAndChannelIdAndStatusNotIn(userId,channelId,statusNot,pageable);
 				List<Orders> content = orderList.getContent();
 				log.info("====content======"+content);
 				for(Orders o :content){
