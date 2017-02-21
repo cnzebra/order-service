@@ -64,7 +64,7 @@ public class OrderController {
 		List<String> inventoryList = new ArrayList<String>();
 		Map<String,OrderItem> mapper = new HashMap<String,OrderItem>();
 		List<SellerOrder> sellerOrders = reqOrder.getSellerOrders();
-		String tradeOutNo = orderService.getTradeOutNo(reqOrder.getChannelId());
+		String tradeOutNo = orderService.getTradeOutNo();
 		
 		List<Orders> orders = new ArrayList<Orders>();
 		List<OrderItem> orderitems = new ArrayList<OrderItem>();//存放订单的商品

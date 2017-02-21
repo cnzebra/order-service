@@ -88,8 +88,8 @@ public class OrderService {
 	public Map<String,String[]> getAuthenticatedUser() {
 		return request.getParameterMap();
 	}
-	public String getTradeOutNo(String channelId) {
-		String getPayInfoCode = restTemplate.getForObject("http://payment-service/v1/getPayInfoCode?channel_id="+channelId, String.class);		
+	public String getTradeOutNo() {
+		String getPayInfoCode = restTemplate.getForObject("http://payment-service/v1/getPayInfoCode", String.class);		
 		log.info("getTradeOutNo is "+getPayInfoCode);
 		return getPayInfoCode;
 	}
