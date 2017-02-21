@@ -17,6 +17,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -345,7 +346,8 @@ public class OrderService {
 			Map<String,String[]> user = getAuthenticatedUser();
 			String userId = user.get("Session_id")[0];
 			String channelId = user.get("Session_businessId")[0];
-			Pageable pageable = new PageRequest(page, size);
+			Sort sort = new Sort(Sort.Direction.DESC, "createdAt");
+			Pageable pageable = new PageRequest(page, size,sort);
 			if(status.equals("all") || status.equals("ALL")){
 				
 				List<String> statusNot = new ArrayList();
