@@ -41,7 +41,8 @@ public class BigOrder {
 	private String memberId;
 	
 	private List<SellerOrder> sellerOrders;
-
+	private String businessId;
+	
 	public String getConsignee() {
 		return consignee;
 	}
@@ -122,13 +123,24 @@ public class BigOrder {
 	public void setMemberId(String memberId) {
 		this.memberId = memberId;
 	}
+	
+
+	public String getBusinessId() {
+		return businessId;
+	}
+
+	public void setBusinessId(String businessId) {
+		this.businessId = businessId;
+	}
 
 	@Override
 	public String toString() {
 		return "BigOrder [consignee=" + consignee + ", address=" + address + ", contactTel=" + contactTel
 				+ ", invoiceHeader=" + invoiceHeader + ", invoiceContent=" + invoiceContent + ", channelId=" + channelId
 				+ ", totalPrice=" + totalPrice + ", tradeOutNo=" + tradeOutNo + ", memberId=" + memberId
-				+ ", sellerOrders=" + sellerOrders + "]";
+				+ ", sellerOrders=" + sellerOrders + ", businessId=" + businessId + "]";
 	}
+
+	
 
 }
