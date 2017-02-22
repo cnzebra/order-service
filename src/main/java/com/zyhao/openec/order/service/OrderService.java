@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zyhao.openec.entity.Store;
 import com.zyhao.openec.order.entity.Inventory;
 import com.zyhao.openec.order.entity.OrderItem;
@@ -595,8 +597,9 @@ public class OrderService {
 	 * @param out_trade_no
 	 * @param status
 	 * @return
+	 * @throws Exception 
 	 */
-	public Object editOrderPayStatus(HttpServletRequest request,String out_trade_no, String status,String orderstatus) {
+	public Object editOrderPayStatus(HttpServletRequest request,String out_trade_no, String status,String orderstatus) throws Exception {
 		List<Inventory> reqAry = new ArrayList<Inventory>();
 		List<Orders> orders = orderRepository.findByOutTradeNo(out_trade_no);
 		for (Orders order : orders) {
@@ -604,25 +607,28 @@ public class OrderService {
 			order.setStatus(status);
 			order.setPayStatus(orderstatus);
 			
-			
-			
-			List<OrderItem> findByOrderCode = orderItemRepository.findByOrderCode(order.getOrderCode());
-		
-			for(OrderItem oi:findByOrderCode){
-				Inventory inventory = new Inventory();
-				inventory.setSku(oi.getSku());
-				inventory.setAmount(oi.getGoodsCount());
-				reqAry.add(inventory);
+			log.info("editOrderPayStatus=======editOrderPayStatus is "+order);
+			if(order.getOrderCode() != null){
+				List<OrderItem> findByOrderCode = orderItemRepository.findByOrderCode(order.getOrderCode());
+				log.info("editOrderPayStatus=======OrderItem is "+findByOrderCode);
+				for(OrderItem oi:findByOrderCode){
+					Inventory inventory = new Inventory();
+					inventory.setSku(oi.getSku());
+					inventory.setAmount(oi.getGoodsCount());
+					inventory.setPrice(oi.getPrice());
+					reqAry.add(inventory);
+				}
 			}
 		}
-
-		//[{"sku":"120161121135401001-0000","amount":"600"}]
+		
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);				
-		
-		HttpEntity<List<Inventory>> formEntity = new HttpEntity<List<Inventory>>(reqAry , headers);
-		restTemplate.postForObject("http://inventory-service/nologin/minusInventory",formEntity, Inventory[].class);
+		ObjectMapper map = new ObjectMapper();
+		String s = map.writeValueAsString(reqAry);
+		log.info("===================="+s);
+		HttpEntity<String> formEntity = new HttpEntity<String>(s, headers);
+		restTemplate.postForObject("http://inventory-service/v1/minusInventory",formEntity, Object.class);
 		
 
 		
