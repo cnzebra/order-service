@@ -88,6 +88,7 @@ public class Orders implements Serializable {
 	/** 是否出账单. */
 	private String isBilled;
 	
+	private String businessId;
 	@Transient
 	private List<OrderItem> orderItems;
 
@@ -498,17 +499,25 @@ public class Orders implements Serializable {
 		this.isBilled = isBilled;
 	}
 
-	@Override
-	public String toString() {
-		return "Orders [orderCode=" + orderCode + ", consignee=" + consignee + ", address=" + address
-				+ ", contactTel=" + contactTel + ", status=" + status + ", createdAt=" + createdAt + ", modifyAt="
-				+ modifyAt + ", sellerName=" + sellerName + ", sellerId=" + sellerId + ", channelId=" + channelId
-				+ ", memberId=" + memberId + ", goodsCount=" + goodsCount + ", realSellPrice=" + realSellPrice
-				+ ", invoiceHeader=" + invoiceHeader + ", invoiceContent=" + invoiceContent + ", promotion=" + promotion
-				+ ", logistics=" + logistics + ", fareFee=" + fareFee + ", outTradeNo=" + outTradeNo + ", payStatus="
-				+ payStatus + ", isRemind=" + isRemind + ", isBilled=" + isBilled + ", orderItems=" + orderItems + "]";
+	public String getBusinessId() {
+		return businessId;
 	}
 
+	public void setBusinessId(String businessId) {
+		this.businessId = businessId;
+	}
+
+	@Override
+	public String toString() {
+		return "Orders [orderCode=" + orderCode + ", consignee=" + consignee + ", address=" + address + ", contactTel="
+				+ contactTel + ", status=" + status + ", createdAt=" + createdAt + ", modifyAt=" + modifyAt
+				+ ", sellerName=" + sellerName + ", sellerId=" + sellerId + ", channelId=" + channelId + ", memberId="
+				+ memberId + ", goodsCount=" + goodsCount + ", realSellPrice=" + realSellPrice + ", invoiceHeader="
+				+ invoiceHeader + ", invoiceContent=" + invoiceContent + ", promotion=" + promotion + ", logistics="
+				+ logistics + ", fareFee=" + fareFee + ", outTradeNo=" + outTradeNo + ", payStatus=" + payStatus
+				+ ", isRemind=" + isRemind + ", isBilled=" + isBilled + ", businessId=" + businessId + ", orderItems="
+				+ orderItems + "]";
+	}
 
 
 }

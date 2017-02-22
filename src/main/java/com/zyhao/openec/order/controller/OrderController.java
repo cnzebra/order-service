@@ -154,7 +154,7 @@ public class OrderController {
 			tempOrder.setPayStatus("0"); 
 			tempOrder.setIsRemind("0");
 			tempOrder.setIsBilled("F");
-			
+			tempOrder.setBusinessId(reqOrder.getBusinessId());
 			orders.add(tempOrder);
 			sellerOrder.setSellerName(tempOrder.getSellerName());
 		}

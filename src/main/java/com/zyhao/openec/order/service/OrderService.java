@@ -107,6 +107,7 @@ public class OrderService {
 		json.put("payType","1");//1-现金支付 2-货到付款
 		json.put("channelId", reqOrder.getChannelId());
 		json.put("payStatus", "0");
+		json.put("businessId",reqOrder.getBusinessId());
 		int size = reqOrder.getSellerOrders().size();
 		String sellerId = ",";
 		for(int i=0;i<size;i++){
@@ -345,7 +346,7 @@ public class OrderService {
 		try{
 			Map<String,String[]> user = getAuthenticatedUser();
 			String userId = user.get("Session_id")[0];
-			String channelId = user.get("Session_businessId")[0];
+			String businessId = user.get("Session_businessId")[0];
 			Sort sort = new Sort(Sort.Direction.DESC, "createdAt");
 			Pageable pageable = new PageRequest(page, size,sort);
 			if(status.equals("all") || status.equals("ALL")){
@@ -355,7 +356,7 @@ public class OrderService {
 				statusNot.add("100");
 				statusNot.add("0");
 				
-				Page<Orders> orderList = orderRepository.findByMemberIdAndChannelIdAndStatusNotIn(userId,channelId,statusNot,pageable);
+				Page<Orders> orderList = orderRepository.findByMemberIdAndBusinessIdAndStatusNotIn(userId,businessId,statusNot,pageable);
 				List<Orders> content = orderList.getContent();
 				log.info("====content======"+content);
 				for(Orders o :content){
@@ -378,7 +379,7 @@ public class OrderService {
 			}
 			
 
-			Page<Orders> orderList = orderRepository.findByMemberIdAndStatus(userId,status,pageable);
+			Page<Orders> orderList = orderRepository.findByMemberIdAndStatusAndBusinessId(userId,status,businessId,pageable);
 			List<Orders> content = orderList.getContent();
 			log.info("====content======"+content);
 			for(Orders o :content){
@@ -596,21 +597,32 @@ public class OrderService {
 	 * @return
 	 */
 	public Object editOrderPayStatus(HttpServletRequest request,String out_trade_no, String status,String orderstatus) {
-		Map<String,String[]> user = getAuthenticatedUser();
-		String userId = user.get("Session_id")[0];
-		List<Orders> orders = orderRepository.findByMemberIdAndOutTradeNo(userId,out_trade_no);
+		List<Inventory> reqAry = new ArrayList<Inventory>();
+		List<Orders> orders = orderRepository.findByOutTradeNo(out_trade_no);
 		for (Orders order : orders) {
 			//若支付失败，订单状态为待支付
-			order.setPayStatus(status);
+			order.setStatus(status);
 			order.setPayStatus(orderstatus);
+			
+			
+			
+			List<OrderItem> findByOrderCode = orderItemRepository.findByOrderCode(order.getOrderCode());
+		
+			for(OrderItem oi:findByOrderCode){
+				Inventory inventory = new Inventory();
+				inventory.setSku(oi.getSku());
+				inventory.setAmount(oi.getGoodsCount());
+				reqAry.add(inventory);
+			}
 		}
 
 		//[{"sku":"120161121135401001-0000","amount":"600"}]
-//		HttpHeaders headers = new HttpHeaders();
-//		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
-//		headers.setContentType(type);				
-//		HttpEntity<List<String>> formEntity = new HttpEntity<List<String>>(reqAry, headers);
-		//restTemplate.postForObject("http://inventory-service/nologin/minusInventory",formEntity, Inventory[].class)
+		HttpHeaders headers = new HttpHeaders();
+		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+		headers.setContentType(type);				
+		
+		HttpEntity<List<Inventory>> formEntity = new HttpEntity<List<Inventory>>(reqAry , headers);
+		restTemplate.postForObject("http://inventory-service/nologin/minusInventory",formEntity, Inventory[].class);
 		
 
 		

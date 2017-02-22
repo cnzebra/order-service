@@ -81,6 +81,18 @@ public interface OrderRepository extends PagingAndSortingRepository<Orders, Stri
 
 
 	Page<Orders> findByMemberIdAndChannelIdAndStatusNotIn(String userId,String channelId, List<String> statusNot, Pageable pageable);
+
+
+	List<Orders> findByOutTradeNo(String out_trade_no);
+
+
+	Page<Orders> findByMemberIdAndBusinessIdAndStatusNotIn(String userId, String businessId, List<String> statusNot,
+			Pageable pageable);
+
+
+	Page<Orders> findByMemberIdAndStatusAndBusinessId(String userId, String status, String businessId,
+			Pageable pageable);
+
 	
 }
 
