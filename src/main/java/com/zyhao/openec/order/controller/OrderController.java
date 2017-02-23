@@ -135,7 +135,7 @@ public class OrderController {
 			Orders tempOrder = new Orders();
 			//订单号生成算法待完善  订单编码
 			tempOrder.setOrderCode(orderCode);
-			tempOrder.setCreatedAt(new Date().getTime());
+			tempOrder.setCreateAt(new Date().getTime());
 			tempOrder.setStatus("0");
 			tempOrder.setMemberId(reqOrder.getMemberId());
 			tempOrder.setRealSellPrice(orderPrice);
@@ -155,6 +155,10 @@ public class OrderController {
 			tempOrder.setIsRemind("0");
 			tempOrder.setIsBilled("F");
 			tempOrder.setBusinessId(reqOrder.getBusinessId());
+			tempOrder.setPhone(reqOrder.getPhone());
+			tempOrder.setRealName(reqOrder.getRealName());
+			tempOrder.setNickName(reqOrder.getNickName());
+			
 			orders.add(tempOrder);
 			sellerOrder.setSellerName(tempOrder.getSellerName());
 		}

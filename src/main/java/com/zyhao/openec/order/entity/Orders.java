@@ -37,7 +37,7 @@ public class Orders implements Serializable {
 
 	/** 订单提交时间. */
 	@CreatedDate
-	private Long createdAt;
+	private Long createAt;
 
 	/** 最后变更时间. */
 	@LastModifiedDate
@@ -92,6 +92,12 @@ public class Orders implements Serializable {
 	@Transient
 	private List<OrderItem> orderItems;
 
+	private String realName;
+	
+	private String nickName;
+	
+	private String phone;
+	
 	/**
 	 * Constructor.
 	 */
@@ -196,8 +202,8 @@ public class Orders implements Serializable {
 	 * @param createTime
 	 *            订单提交时间
 	 */
-	public void setCreatedAt(Long createdAt) {
-		this.createdAt = createdAt;
+	public void setCreateAt(Long createAt) {
+		this.createAt = createAt;
 	}
 
 	/**
@@ -205,8 +211,8 @@ public class Orders implements Serializable {
 	 * 
 	 * @return 订单提交时间
 	 */
-	public Long getCreatedAt() {
-		return this.createdAt;
+	public Long getCreateAt() {
+		return this.createAt;
 	}
 
 	/**
@@ -215,8 +221,8 @@ public class Orders implements Serializable {
 	 * @param modifyTime
 	 *            最后变更时间
 	 */
-	public void setModifyTime(Long createdAt) {
-		this.createdAt = createdAt;
+	public void setModifyTime(Long createAt) {
+		this.createAt = createAt;
 	}
 
 	/**
@@ -225,7 +231,7 @@ public class Orders implements Serializable {
 	 * @return 最后变更时间
 	 */
 	public Long getModifyTime() {
-		return this.createdAt;
+		return this.createAt;
 	}
 
 	/**
@@ -507,17 +513,42 @@ public class Orders implements Serializable {
 		this.businessId = businessId;
 	}
 
+	public String getRealName() {
+		return realName;
+	}
+
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
 	@Override
 	public String toString() {
 		return "Orders [orderCode=" + orderCode + ", consignee=" + consignee + ", address=" + address + ", contactTel="
-				+ contactTel + ", status=" + status + ", createdAt=" + createdAt + ", modifyAt=" + modifyAt
+				+ contactTel + ", status=" + status + ", createAt=" + createAt + ", modifyAt=" + modifyAt
 				+ ", sellerName=" + sellerName + ", sellerId=" + sellerId + ", channelId=" + channelId + ", memberId="
 				+ memberId + ", goodsCount=" + goodsCount + ", realSellPrice=" + realSellPrice + ", invoiceHeader="
 				+ invoiceHeader + ", invoiceContent=" + invoiceContent + ", promotion=" + promotion + ", logistics="
 				+ logistics + ", fareFee=" + fareFee + ", outTradeNo=" + outTradeNo + ", payStatus=" + payStatus
 				+ ", isRemind=" + isRemind + ", isBilled=" + isBilled + ", businessId=" + businessId + ", orderItems="
-				+ orderItems + "]";
+				+ orderItems + ", realName=" + realName + ", nickName=" + nickName + ", phone=" + phone + "]";
 	}
 
+	
 
 }

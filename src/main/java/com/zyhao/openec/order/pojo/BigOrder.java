@@ -40,8 +40,15 @@ public class BigOrder {
 	
 	private String memberId;
 	
-	private List<SellerOrder> sellerOrders;
 	private String businessId;
+	
+	private List<SellerOrder> sellerOrders;
+
+    private String realName;
+	
+	private String nickName;
+	
+	private String phone;
 	
 	public String getConsignee() {
 		return consignee;
@@ -123,7 +130,6 @@ public class BigOrder {
 	public void setMemberId(String memberId) {
 		this.memberId = memberId;
 	}
-	
 
 	public String getBusinessId() {
 		return businessId;
@@ -138,9 +144,33 @@ public class BigOrder {
 		return "BigOrder [consignee=" + consignee + ", address=" + address + ", contactTel=" + contactTel
 				+ ", invoiceHeader=" + invoiceHeader + ", invoiceContent=" + invoiceContent + ", channelId=" + channelId
 				+ ", totalPrice=" + totalPrice + ", tradeOutNo=" + tradeOutNo + ", memberId=" + memberId
-				+ ", sellerOrders=" + sellerOrders + ", businessId=" + businessId + "]";
+				+ ", businessId=" + businessId + ", sellerOrders=" + sellerOrders + ", realName=" + realName
+				+ ", nickName=" + nickName + ", phone=" + phone + "]";
 	}
 
-	
+	public String getRealName() {
+		return realName;
+	}
 
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+    
 }
