@@ -349,8 +349,10 @@ public class OrderService {
 			Map<String,String[]> user = getAuthenticatedUser();
 			String userId = user.get("Session_id")[0];
 			String businessId = user.get("Session_businessId")[0];
-			Sort sort = new Sort(Sort.Direction.DESC, "createdAt");
+			Sort sort = new Sort(Sort.Direction.DESC, "createAt");
 			Pageable pageable = new PageRequest(page, size,sort);
+			log.info("====content======status="+status+" businessId="+businessId+" userId="+userId);
+			
 			if(status.equals("all") || status.equals("ALL")){
 				
 				List<String> statusNot = new ArrayList();
