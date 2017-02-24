@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zyhao.openec.entity.Store;
 import com.zyhao.openec.order.entity.Inventory;
@@ -37,6 +36,7 @@ import com.zyhao.openec.order.pojo.BigOrder;
 import com.zyhao.openec.order.pojo.SellerOrder;
 import com.zyhao.openec.order.repository.OrderItemRepository;
 import com.zyhao.openec.order.repository.OrderRepository;
+import com.zyhao.openec.order.repository.PayInfoRepository;
 import com.zyhao.openec.order.repository.RefundOrderRepository;
 import com.zyhao.openec.pojo.MachineCode;
 import com.zyhao.openec.pojo.RepEntity;
@@ -71,7 +71,8 @@ public class OrderService {
 	private OrderItemRepository orderItemRepository;
 	@Autowired
 	private UniqueCodeUtil uniqueCodeUtil;
-	
+	@Autowired
+	private PayInfoRepository payInfoRepository;
 	private MachineCode machineCode;
 	/**
 	 * 认证平台
@@ -388,6 +389,8 @@ public class OrderService {
 			log.info("====content======"+content);
 			for(Orders o :content){
 				o.setOrderItems(orderItemRepository.findByOrderCode(o.getOrderCode()));
+				o.setPayInfo(payInfoRepository.findByOutTradeNo(o.getOutTradeNo()));
+				
 			}
 			resp.setMsg("订单列表查询成功");
 			resp.setStatus("0");

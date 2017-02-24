@@ -98,6 +98,9 @@ public class Orders implements Serializable {
 	
 	private String phone;
 	
+	@Transient
+	private PayInfo payInfo;
+	
 	/**
 	 * Constructor.
 	 */
@@ -537,6 +540,15 @@ public class Orders implements Serializable {
 		this.phone = phone;
 	}
 
+	
+	public PayInfo getPayInfo() {
+		return payInfo;
+	}
+
+	public void setPayInfo(PayInfo payInfo) {
+		this.payInfo = payInfo;
+	}
+
 	@Override
 	public String toString() {
 		return "Orders [orderCode=" + orderCode + ", consignee=" + consignee + ", address=" + address + ", contactTel="
@@ -546,7 +558,8 @@ public class Orders implements Serializable {
 				+ invoiceHeader + ", invoiceContent=" + invoiceContent + ", promotion=" + promotion + ", logistics="
 				+ logistics + ", fareFee=" + fareFee + ", outTradeNo=" + outTradeNo + ", payStatus=" + payStatus
 				+ ", isRemind=" + isRemind + ", isBilled=" + isBilled + ", businessId=" + businessId + ", orderItems="
-				+ orderItems + ", realName=" + realName + ", nickName=" + nickName + ", phone=" + phone + "]";
+				+ orderItems + ", realName=" + realName + ", nickName=" + nickName + ", phone=" + phone + ", payInfo="
+				+ payInfo + "]";
 	}
 
 	

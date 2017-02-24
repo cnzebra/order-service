@@ -1,10 +1,8 @@
 package com.zyhao.openec.order.entity;
 import java.io.Serializable;
 import java.sql.Blob;
-import java.util.Date;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 /**
@@ -38,7 +36,7 @@ public class PayInfo implements Serializable {
 	private Integer totalPoints;
 
 	/** 提交时间. */
-	private Date commitTime;
+	private Long commitTime;
 
 	/** 用户id. */
 	private String userId;
@@ -122,7 +120,7 @@ public class PayInfo implements Serializable {
 	private String prepayId;
 
 	/** 通知时间. */
-	private Date notifyTime;
+	private Long notifyTime;
 
 	/** 通知类型. */
 	private String notifyType;
@@ -134,13 +132,13 @@ public class PayInfo implements Serializable {
 	private String tradeNo;
 
 	/** 交易创建时间. */
-	private Date gmtCreate;
+	private Long gmtCreate;
 
 	/** 交易付款时间. */
-	private Date gmtPayment;
+	private Long gmtPayment;
 
 	/** 交易关闭时间. */
-	private Date gmtClose;
+	private Long gmtClose;
 
 	/** 扩展字段. */
 	private Blob ext;
@@ -254,7 +252,7 @@ public class PayInfo implements Serializable {
 	 * @param commitTime
 	 *            提交时间
 	 */
-	public void setCommitTime(Date commitTime) {
+	public void setCommitTime(Long commitTime) {
 		this.commitTime = commitTime;
 	}
 
@@ -263,7 +261,7 @@ public class PayInfo implements Serializable {
 	 * 
 	 * @return 提交时间
 	 */
-	public Date getCommitTime() {
+	public Long getCommitTime() {
 		return this.commitTime;
 	}
 
@@ -786,7 +784,7 @@ public class PayInfo implements Serializable {
 	 * @param notifyTime
 	 *            通知时间
 	 */
-	public void setNotifyTime(Date notifyTime) {
+	public void setNotifyTime(Long notifyTime) {
 		this.notifyTime = notifyTime;
 	}
 
@@ -795,7 +793,7 @@ public class PayInfo implements Serializable {
 	 * 
 	 * @return 通知时间
 	 */
-	public Date getNotifyTime() {
+	public Long getNotifyTime() {
 		return this.notifyTime;
 	}
 
@@ -862,7 +860,7 @@ public class PayInfo implements Serializable {
 	 * @param gmtCreate
 	 *            交易创建时间
 	 */
-	public void setGmtCreate(Date gmtCreate) {
+	public void setGmtCreate(Long gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
@@ -871,7 +869,7 @@ public class PayInfo implements Serializable {
 	 * 
 	 * @return 交易创建时间
 	 */
-	public Date getGmtCreate() {
+	public Long getGmtCreate() {
 		return this.gmtCreate;
 	}
 
@@ -881,7 +879,7 @@ public class PayInfo implements Serializable {
 	 * @param gmtPayment
 	 *            交易付款时间
 	 */
-	public void setGmtPayment(Date gmtPayment) {
+	public void setGmtPayment(Long gmtPayment) {
 		this.gmtPayment = gmtPayment;
 	}
 
@@ -890,7 +888,7 @@ public class PayInfo implements Serializable {
 	 * 
 	 * @return 交易付款时间
 	 */
-	public Date getGmtPayment() {
+	public Long getGmtPayment() {
 		return this.gmtPayment;
 	}
 
@@ -900,7 +898,7 @@ public class PayInfo implements Serializable {
 	 * @param gmtClose
 	 *            交易关闭时间
 	 */
-	public void setGmtClose(Date gmtClose) {
+	public void setGmtClose(Long gmtClose) {
 		this.gmtClose = gmtClose;
 	}
 
@@ -909,7 +907,7 @@ public class PayInfo implements Serializable {
 	 * 
 	 * @return 交易关闭时间
 	 */
-	public Date getGmtClose() {
+	public Long getGmtClose() {
 		return this.gmtClose;
 	}
 
