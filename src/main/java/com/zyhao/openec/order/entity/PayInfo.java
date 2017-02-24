@@ -1,9 +1,9 @@
 package com.zyhao.openec.order.entity;
 import java.io.Serializable;
-import java.sql.Blob;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 /**
  * Model class of 支付表.
@@ -17,10 +17,9 @@ public class PayInfo implements Serializable {
 
 	/** serialVersionUID. */
 	private static final long serialVersionUID = 1L;
-	
-	/** 主键. */
-	@Id
+
 	/** 商户订单号. */
+	@Id
 	private String outTradeNo;
 
 	/** 订单总金额(分). */
@@ -78,7 +77,7 @@ public class PayInfo implements Serializable {
 	private String body;
 
 	/** 商品详情. */
-	private Blob detail;
+	private String detail;
 
 	/** 前台同步通知状态. */
 	private String frontNotifyStatus;
@@ -141,15 +140,35 @@ public class PayInfo implements Serializable {
 	private Long gmtClose;
 
 	/** 扩展字段. */
-	private Blob ext;
+	@Lob
+	private String ext;
 
+	
+	private String businessId;
 	/**
 	 * Constructor.
 	 */
 	public PayInfo() {
 	}
 
-	
+//	/**
+//	 * Set the 主键.
+//	 * 
+//	 * @param id
+//	 *            主键
+//	 */
+//	public void setId(String id) {
+//		this.id = id;
+//	}
+//
+//	/**
+//	 * Get the 主键.
+//	 * 
+//	 * @return 主键
+//	 */
+//	public String getId() {
+//		return this.id;
+//	}
 
 	/**
 	 * Set the 商户订单号.
@@ -518,7 +537,7 @@ public class PayInfo implements Serializable {
 	 * @param detail
 	 *            商品详情
 	 */
-	public void setDetail(Blob detail) {
+	public void setDetail(String detail) {
 		this.detail = detail;
 	}
 
@@ -527,7 +546,7 @@ public class PayInfo implements Serializable {
 	 * 
 	 * @return 商品详情
 	 */
-	public Blob getDetail() {
+	public String getDetail() {
 		return this.detail;
 	}
 
@@ -917,7 +936,7 @@ public class PayInfo implements Serializable {
 	 * @param ext
 	 *            扩展字段
 	 */
-	public void setExt(Blob ext) {
+	public void setExt(String ext) {
 		this.ext = ext;
 	}
 
@@ -926,23 +945,33 @@ public class PayInfo implements Serializable {
 	 * 
 	 * @return 扩展字段
 	 */
-	public Blob getExt() {
+	public String getExt() {
 		return this.ext;
+	}
+
+	public String getBusinessId() {
+		return businessId;
+	}
+
+	public void setBusinessId(String businessId) {
+		this.businessId = businessId;
 	}
 
 	@Override
 	public String toString() {
-		return "PayInfo [ outTradeNo=" + outTradeNo + ", totalPrice=" + totalPrice + ", totalFare="
-				+ totalFare + ", payPrice=" + payPrice + ", totalPoints=" + totalPoints + ", commitTime=" + commitTime
-				+ ", userId=" + userId + ", channelId=" + channelId + ", contentMd5=" + contentMd5 + ", payWay="
-				+ payWay + ", payType=" + payType + ", payStatus=" + payStatus + ", returnCode=" + returnCode
-				+ ", returnMsg=" + returnMsg + ", resultCode=" + resultCode + ", errCode=" + errCode + ", errCodeDes="
-				+ errCodeDes + ", subject=" + subject + ", body=" + body + ", detail=" + detail + ", frontNotifyStatus="
+		return "PayInfo [outTradeNo=" + outTradeNo + ", totalPrice=" + totalPrice + ", totalFare=" + totalFare
+				+ ", payPrice=" + payPrice + ", totalPoints=" + totalPoints + ", commitTime=" + commitTime + ", userId="
+				+ userId + ", channelId=" + channelId + ", contentMd5=" + contentMd5 + ", payWay=" + payWay
+				+ ", payType=" + payType + ", payStatus=" + payStatus + ", returnCode=" + returnCode + ", returnMsg="
+				+ returnMsg + ", resultCode=" + resultCode + ", errCode=" + errCode + ", errCodeDes=" + errCodeDes
+				+ ", subject=" + subject + ", body=" + body + ", detail=" + detail + ", frontNotifyStatus="
 				+ frontNotifyStatus + ", sellerNum=" + sellerNum + ", sellerId=" + sellerId + ", buyerId=" + buyerId
 				+ ", bankNo=" + bankNo + ", deviceInfo=" + deviceInfo + ", charset=" + charset + ", signType="
 				+ signType + ", sign=" + sign + ", attch=" + attch + ", tradeType=" + tradeType + ", tradeStatus="
 				+ tradeStatus + ", prepayId=" + prepayId + ", notifyTime=" + notifyTime + ", notifyType=" + notifyType
 				+ ", notifyId=" + notifyId + ", tradeNo=" + tradeNo + ", gmtCreate=" + gmtCreate + ", gmtPayment="
-				+ gmtPayment + ", gmtClose=" + gmtClose + ", ext=" + ext + "]";
+				+ gmtPayment + ", gmtClose=" + gmtClose + ", ext=" + ext + ", businessId=" + businessId + "]";
 	}
+
+	
 }
