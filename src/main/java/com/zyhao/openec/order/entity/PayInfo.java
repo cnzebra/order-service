@@ -3,7 +3,6 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 
 /**
  * Model class of 支付表.
@@ -140,7 +139,6 @@ public class PayInfo implements Serializable {
 	private Long gmtClose;
 
 	/** 扩展字段. */
-	@Lob
 	private String ext;
 
 	
