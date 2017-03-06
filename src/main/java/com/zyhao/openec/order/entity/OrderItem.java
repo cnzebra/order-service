@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -19,6 +20,7 @@ import javax.validation.constraints.NotNull;
  * @version $Id$
  */
 @Entity(name="order_item")
+@SequenceGenerator(name="SEQ_order_item_id",sequenceName="SEQ_order_item_id")
 public class OrderItem implements Serializable {
 
 	/** serialVersionUID. */
@@ -26,7 +28,7 @@ public class OrderItem implements Serializable {
 
 	/** id. */
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)	
+	@GeneratedValue(strategy=GenerationType.SEQUENCE,generator="SEQ_order_item_id")
 	private Long id;
 
 	/** 商品数量. */

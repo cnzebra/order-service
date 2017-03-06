@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 
 /**
  * Model class of 订单项.
@@ -14,6 +15,7 @@ import javax.persistence.Id;
  * @version $Id$
  */
 @Entity(name="refund_order_item")
+@SequenceGenerator(name="SEQ_refund_order_item_id",sequenceName="SEQ_refund_order_item_id")
 public class RefundOrderItem implements Serializable {
 
 	/** serialVersionUID. */
@@ -21,7 +23,7 @@ public class RefundOrderItem implements Serializable {
 
 	/** id. */
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.SEQUENCE,generator="SEQ_refund_order_item_id")
 	private Long id;
 
 	/** 订单号. */

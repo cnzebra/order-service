@@ -5,14 +5,14 @@ spring:
 spring:
   profiles: development
   datasource:
-    url: jdbc:mysql://db.openec.zyhao.com:3306/orderdb
-    username: root
+    url: jdbc:oracle:thin:@db.openec.zyhao.com:1521/orcl
+    username: orderdb
     password: 3g2win.com
     initialize: true
   zipkin:
     base-url: http://zipkin.openec.zyhao.com:9411/
   jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.OracleDialect
     show-sql: true
 security:
   oauth2:

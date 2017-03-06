@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -26,6 +27,7 @@ import org.springframework.data.annotation.LastModifiedDate;
  */
 
 @Entity(name="refund_orders")
+@SequenceGenerator(name="SEQ_refund_orders_id",sequenceName="SEQ_refund_orders_id")
 public class RefundOrders implements Serializable {
 
 	/** serialVersionUID. */
@@ -34,7 +36,7 @@ public class RefundOrders implements Serializable {
 	/** id. */
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.SEQUENCE,generator="SEQ_refund_orders_id")
 	private Long id;
 
 	/** 退单号. */
