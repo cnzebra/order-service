@@ -5,9 +5,9 @@ spring:
 spring:
   profiles: development
   datasource:
-    url: jdbc:oracle:thin:@db.openec.zyhao.com:1521/orcl
+    url: jdbc:oracle:thin:@db.openec.zyhao.com:1521:orclsqyx
     username: orderdb
-    password: 3g2win.com
+    password: sqyx123
     initialize: true
   zipkin:
     base-url: http://zipkin.openec.zyhao.com:9411/
